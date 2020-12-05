@@ -64,6 +64,96 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Flask-10" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/05/Flask-10/" class="article-date">
+  <time datetime="2020-12-05T12:54:39.000Z" itemprop="datePublished">2020-12-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/05/Flask-10/">Flask(10)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="用户资料"><a href="#用户资料" class="headerlink" title="用户资料"></a>用户资料</h1><h2 id="资料信息"><a href="#资料信息" class="headerlink" title="资料信息"></a>资料信息</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class User(UserMixin, db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    name &#x3D; db.Column(db.String(64))</span><br><span class="line">    location &#x3D; db.Column(db.String(64))</span><br><span class="line">    about_me &#x3D; db.Column(db.Text())</span><br><span class="line">    member_since &#x3D; db.Column(db.DateTime(), default&#x3D;datetime.utcnow)</span><br><span class="line">    last_seen &#x3D; db.Column(db.DateTime(), default&#x3D;datetime.utcnow)</span><br><span class="line"></span><br><span class="line">    # 刷新最后登录时间</span><br><span class="line">    def ping(self):</span><br><span class="line">        self.last_seen &#x3D; datetime.utcnow()</span><br><span class="line">        db.session.add(self)</span><br></pre></td></tr></table></figure>
+<h2 id="用户资料页面"><a href="#用户资料页面" class="headerlink" title="用户资料页面"></a>用户资料页面</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;user&#x2F;&lt;username&gt;&#39;)</span><br><span class="line">def user(username):</span><br><span class="line">    user &#x3D; User.query.filter_by(username&#x3D;username).first_or_404()</span><br><span class="line">    return render_template(&#39;user.html&#39;, user&#x3D;user)</span><br></pre></td></tr></table></figure>
+<h2 id="编辑模板"><a href="#编辑模板" class="headerlink" title="编辑模板"></a>编辑模板</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &quot;base.html&quot; %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block title %&#125;Flasky - &#123;&#123; user.username &#125;&#125;&#123;% endblock %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block page_content %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;page-header&quot;&gt;</span><br><span class="line">    &lt;h1&gt;&#123;&#123; user.username &#125;&#125;&lt;&#x2F;h1&gt;</span><br><span class="line">    &#123;% if user.name or user.location %&#125;</span><br><span class="line">    &lt;p&gt;</span><br><span class="line">        &#123;% if user.name %&#125;&#123;&#123; user.name &#125;&#125;&#123;% endif %&#125;</span><br><span class="line">        &#123;% if user.location %&#125;</span><br><span class="line">        # 使用谷歌地图，找到当前位置</span><br><span class="line">            from &lt;a href&#x3D;&quot;http:&#x2F;&#x2F;maps.google.com&#x2F;?q&#x3D;&#123;&#123; user.location &#125;&#125;&quot;&gt;&#123;&#123; user.location &#125;&#125;&lt;&#x2F;a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">    &lt;&#x2F;p&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    &#123;% if current_user.is_administrator() %&#125;</span><br><span class="line">    &lt;p&gt;&lt;a href&#x3D;&quot;mailto:&#123;&#123; user.email &#125;&#125;&quot;&gt;&#123;&#123; user.email &#125;&#125;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    &#123;% if user.about_me %&#125;&lt;p&gt;&#123;&#123; user.about_me &#125;&#125;&lt;&#x2F;p&gt;&#123;% endif %&#125;</span><br><span class="line">    &lt;p&gt;Member since &#123;&#123; moment(user.member_since).format(&#39;L&#39;) &#125;&#125;. Last seen &#123;&#123; moment(user.last_seen).fromNow() &#125;&#125;.&lt;&#x2F;p&gt;</span><br><span class="line">    &lt;p&gt;</span><br><span class="line">        &#123;% if user &#x3D;&#x3D; current_user %&#125;</span><br><span class="line">        &lt;a class&#x3D;&quot;btn btn-default&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.edit_profile&#39;) &#125;&#125;&quot;&gt;Edit Profile&lt;&#x2F;a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">        &#123;% if current_user.is_administrator() %&#125;</span><br><span class="line">        &lt;a class&#x3D;&quot;btn btn-danger&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.edit_profile_admin&#39;, id&#x3D;user.id) &#125;&#125;&quot;&gt;Edit Profile [Admin]&lt;&#x2F;a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">    &lt;&#x2F;p&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="资料编辑路由"><a href="#资料编辑路由" class="headerlink" title="资料编辑路由"></a>资料编辑路由</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;edit-profile&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">@login_required</span><br><span class="line">def edit_profile():</span><br><span class="line">    form &#x3D; EditProfileForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        current_user.name &#x3D; form.name.data</span><br><span class="line">        current_user.location &#x3D; form.location.data</span><br><span class="line">        current_user.about_me &#x3D; form.about_me.data</span><br><span class="line">        #current_user._get_current_object()返回的是真实对象，如果不使用该方法，上下文变量无法使用，可能会导致一些错误。</span><br><span class="line">        db.session.add(current_user._get_current_object())</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;Your profile has been updated.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.user&#39;, username&#x3D;current_user.username))</span><br><span class="line">    form.name.data &#x3D; current_user.name</span><br><span class="line">    form.location.data &#x3D; current_user.location</span><br><span class="line">    form.about_me.data &#x3D; current_user.about_me</span><br><span class="line">    return render_template(&#39;edit_profile.html&#39;, form&#x3D;form)</span><br></pre></td></tr></table></figure>
+<h2 id="管理员级资料编辑器"><a href="#管理员级资料编辑器" class="headerlink" title="管理员级资料编辑器"></a>管理员级资料编辑器</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">class EditProfileAdminForm(FlaskForm):</span><br><span class="line">    email &#x3D; StringField(&#39;Email&#39;, validators&#x3D;[DataRequired(), Length(1, 64),</span><br><span class="line">                                             Email()])</span><br><span class="line">    username &#x3D; StringField(&#39;Username&#39;, validators&#x3D;[</span><br><span class="line">        DataRequired(), Length(1, 64),</span><br><span class="line">        Regexp(&#39;^[A-Za-z][A-Za-z0-9_.]*$&#39;, 0,</span><br><span class="line">               &#39;Usernames must have only letters, numbers, dots or &#39;</span><br><span class="line">               &#39;underscores&#39;)])</span><br><span class="line">    confirmed &#x3D; BooleanField(&#39;Confirmed&#39;)</span><br><span class="line">    role &#x3D; SelectField(&#39;Role&#39;, coerce&#x3D;int) # coerce&#x3D;int将字段的值转为整数</span><br><span class="line">    name &#x3D; StringField(&#39;Real name&#39;, validators&#x3D;[Length(0, 64)])</span><br><span class="line">    location &#x3D; StringField(&#39;Location&#39;, validators&#x3D;[Length(0, 64)])</span><br><span class="line">    about_me &#x3D; TextAreaField(&#39;About me&#39;)</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br><span class="line"></span><br><span class="line">    #初始化原因：为了搭建role复选框。</span><br><span class="line">    def __init__(self, user, *args, **kwargs):</span><br><span class="line">        super(EditProfileAdminForm, self).__init__(*args, **kwargs)</span><br><span class="line">        self.role.choices &#x3D; [(role.id, role.name)</span><br><span class="line">                             for role in Role.query.order_by(Role.name).all()]</span><br><span class="line">        # 该user由视图函数传过来的。</span><br><span class="line">        self.user &#x3D; user</span><br><span class="line"></span><br><span class="line">    def validate_email(self, field):</span><br><span class="line">        if field.data !&#x3D; self.user.email and \</span><br><span class="line">                User.query.filter_by(email&#x3D;field.data).first():</span><br><span class="line">            raise ValidationError(&#39;Email already registered.&#39;)</span><br><span class="line"></span><br><span class="line">    def validate_username(self, field):</span><br><span class="line">        if field.data !&#x3D; self.user.username and \</span><br><span class="line">                User.query.filter_by(username&#x3D;field.data).first():</span><br><span class="line">            raise ValidationError(&#39;Username already in use.&#39;)</span><br></pre></td></tr></table></figure>
+<h2 id="管理员编辑路由"><a href="#管理员编辑路由" class="headerlink" title="管理员编辑路由"></a>管理员编辑路由</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;edit-profile&#x2F;&lt;int:id&gt;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">@login_required</span><br><span class="line">@admin_required</span><br><span class="line">#使用@admin_required装饰器，当非管理员尝试访问这个路由时会403错误。</span><br><span class="line">def edit_profile_admin(id):</span><br><span class="line">    user &#x3D; User.query.get_or_404(id)</span><br><span class="line">    # 向表单传递user</span><br><span class="line">    form &#x3D; EditProfileAdminForm(user&#x3D;user)</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        # ...</span><br><span class="line">        flash(&#39;The profile has been updated.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.user&#39;, username&#x3D;user.username))</span><br><span class="line">    form.email.data &#x3D; user.email</span><br><span class="line">    # ...</span><br><span class="line">    return render_template(&#39;edit_profile.html&#39;, form&#x3D;form, user&#x3D;user)</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/05/Flask-10/" data-id="ckibp94y20000bejxbcychru5" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Flask-9" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/05/Flask-9/" class="article-date">
+  <time datetime="2020-12-05T12:54:08.000Z" itemprop="datePublished">2020-12-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/05/Flask-9/">Flask(9)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="用户角色"><a href="#用户角色" class="headerlink" title="用户角色"></a>用户角色</h1><h2 id="角色在数据库中表示"><a href="#角色在数据库中表示" class="headerlink" title="角色在数据库中表示"></a>角色在数据库中表示</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class Role(db.Model):</span><br><span class="line">    __tablename__ &#x3D; &#39;roles&#39;</span><br><span class="line">    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)</span><br><span class="line">    name &#x3D; db.Column(db.String(64), unique&#x3D;True)</span><br><span class="line">    default &#x3D; db.Column(db.Boolean, default&#x3D;False, index&#x3D;True) # 只有一个角色设为True，其他为False</span><br><span class="line">    permissions &#x3D; db.Column(db.Integer) # 权限值</span><br><span class="line">    users &#x3D; db.relationship(&#39;User&#39;, backref&#x3D;&#39;role&#39;, lazy&#x3D;&#39;dynamic&#39;)</span><br><span class="line"></span><br><span class="line">    def __init__(self, **kwargs):</span><br><span class="line">        super(Role, self).__init__(**kwargs)</span><br><span class="line">        if self.permissions is None:</span><br><span class="line">            self.permissions &#x3D; 0</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>权限常量：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class Permission:</span><br><span class="line">    FOLLOW &#x3D; 1</span><br><span class="line">    COMMENT &#x3D; 2</span><br><span class="line">    WRITE &#x3D; 4</span><br><span class="line">    MODERATE &#x3D; 8</span><br><span class="line">    ADMIN &#x3D; 16</span><br></pre></td></tr></table></figure>
+<p>Role模型中管理权限的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">def add_permission(self, perm):</span><br><span class="line">        if not self.has_permission(perm):</span><br><span class="line">            self.permissions +&#x3D; perm</span><br><span class="line"></span><br><span class="line">    def remove_permission(self, perm):</span><br><span class="line">        if self.has_permission(perm):</span><br><span class="line">            self.permissions -&#x3D; perm</span><br><span class="line"></span><br><span class="line">    def reset_permissions(self):</span><br><span class="line">        self.permissions &#x3D; 0</span><br><span class="line"></span><br><span class="line">    def has_permission(self, perm):</span><br><span class="line">        return self.permissions &amp; perm &#x3D;&#x3D; perm</span><br></pre></td></tr></table></figure>
+<p>在数据库中创建角色</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@staticmethod # 静态方法，没有self，类名.调用</span><br><span class="line">    def insert_roles():</span><br><span class="line">        roles &#x3D; &#123;</span><br><span class="line">            &#39;User&#39;: [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],</span><br><span class="line">            &#39;Moderator&#39;: [Permission.FOLLOW, Permission.COMMENT,</span><br><span class="line">                          Permission.WRITE, Permission.MODERATE],</span><br><span class="line">            &#39;Administrator&#39;: [Permission.FOLLOW, Permission.COMMENT,</span><br><span class="line">                              Permission.WRITE, Permission.MODERATE,</span><br><span class="line">                              Permission.ADMIN],</span><br><span class="line">        &#125;</span><br><span class="line">        default_role &#x3D; &#39;User&#39;</span><br><span class="line">        for r in roles:</span><br><span class="line">            role &#x3D; Role.query.filter_by(name&#x3D;r).first()</span><br><span class="line">            if role is None:</span><br><span class="line">                role &#x3D; Role(name&#x3D;r)</span><br><span class="line">            role.reset_permissions()</span><br><span class="line">            for perm in roles[r]:</span><br><span class="line">                role.add_permission(perm)</span><br><span class="line">            role.default &#x3D; (role.name &#x3D;&#x3D; default_role)</span><br><span class="line">            db.session.add(role)</span><br><span class="line">        db.session.commit()</span><br></pre></td></tr></table></figure>
+<h2 id="赋予角色"><a href="#赋予角色" class="headerlink" title="赋予角色"></a>赋予角色</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">def __init__(self, **kwargs):</span><br><span class="line">       super(User, self).__init__(**kwargs)</span><br><span class="line">       if self.role is None:</span><br><span class="line">           if self.email &#x3D;&#x3D; current_app.config[&#39;FLASKY_ADMIN&#39;]: # 如果是管理员的邮件地址注册，则直接赋予管理员的权限。</span><br><span class="line">               self.role &#x3D; Role.query.filter_by(name&#x3D;&#39;Administrator&#39;).first()</span><br><span class="line">           if self.role is None: # 否则直接是默认角色权限。</span><br><span class="line">               self.role &#x3D; Role.query.filter_by(default&#x3D;True).first()</span><br></pre></td></tr></table></figure>
+<h2 id="检验角色"><a href="#检验角色" class="headerlink" title="检验角色"></a>检验角色</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def can(self, perm):</span><br><span class="line">        return self.role is not None and self.role.has_permission(perm)</span><br><span class="line"></span><br><span class="line">    def is_administrator(self):</span><br><span class="line">        return self.can(Permission.ADMIN)</span><br></pre></td></tr></table></figure>
+<h3 id="将Permission类加入模板上下文中"><a href="#将Permission类加入模板上下文中" class="headerlink" title="将Permission类加入模板上下文中"></a>将Permission类加入模板上下文中</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@main.app_context_processor # 跟之前的shell_context_processor不一样</span><br><span class="line">def inject_permissions():</span><br><span class="line">    return dict(Permission&#x3D;Permission)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/05/Flask-9/" data-id="ckibp94yc0001bejx188jgaus" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Flask-8" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/12/04/Flask-8/" class="article-date">
@@ -754,109 +844,6 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
 
 
   
-    <article id="post-Flask-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/23/Flask-1/" class="article-date">
-  <time datetime="2020-11-23T11:48:11.000Z" itemprop="datePublished">2020-11-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/23/Flask-1/">Flask(1)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Flask上下文变量"><a href="#Flask上下文变量" class="headerlink" title="Flask上下文变量"></a>Flask上下文变量</h2><p>Flask在分派请求之前先激活应用或请求上下文，请求完成后再将其删除<br>推送方法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">app_ctx &#x3D; app.app_context()</span><br><span class="line">app_ctx.push()</span><br></pre></td></tr></table></figure>
-<p>记住session是一个字典。</p>
-<h4 id="request"><a href="#request" class="headerlink" title="request"></a>request</h4><p>environ 请求的原始WSGI环境字典</p>
-<h3 id="请求钩子"><a href="#请求钩子" class="headerlink" title="请求钩子"></a>请求钩子</h3><p>装饰器<br>before_request<br>after_request<br>在请求钩子函数和视图函数之间共享数据一般使用上下文变量g</p>
-<h4 id="response"><a href="#response" class="headerlink" title="response"></a>response</h4><p>get_data()获取响应的body</p>
-<p>flask 提供了 abort（int）函数，用于处理错误。</p>
-<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><p>例子<br><code>Hello,&#123; &#123; name|capitalize &#125; &#125;</code></p>
-<table>
-<thead>
-<tr>
-<th>过滤器名</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>safe</td>
-<td>渲染值时不转义</td>
-</tr>
-<tr>
-<td>capitalize</td>
-<td>首字母大写，其他小写</td>
-</tr>
-</tbody></table>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/23/Flask-1/" data-id="ckibka38d0000pejxfve73xvs" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Tornado2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/22/Tornado2/" class="article-date">
-  <time datetime="2020-11-22T14:13:49.000Z" itemprop="datePublished">2020-11-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/22/Tornado2/">Tornado2</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>我们在平常编程中，更习惯使用的是子例程(subroutine)，通俗的叫法是函数，或者过程。子例程，往往只有一个入口(函数调用，实参通过传给形参开始执行)，一个出口(函数return，执行完毕，或者引发异常，将控制权转移给调用者)。但协程是子例程基础上，一种更加宽泛定义的计算机程序模块(子例程可以看做协程的特例)，它可以有多个入口点，允许从一个入口点，执行到下一个入口点之前暂停，保存执行状态，等到合适的时机恢复执行状态，<br>从下一个入口点重新开始执行，这也是协程应该具有的能力。</p>
-<h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><p>生成器是一个含有yield表达式的函数，一个生成器永远是异步的，执行next方法会继续yield的下一步操作。<br>一个真正的协程能够控制代码什么时候继续执行。而一个Generator执行遇到一个yield表达式 或者语句，会将执行控制权转移给调用者，<br>可以实现一个顶级的调度子例程，将执行控制权转移回Generator，而ioLoop就是一个顶级的调度子例程。</p>
-<h3 id="Future类"><a href="#Future类" class="headerlink" title="Future类"></a>Future类</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Future类重要成员函数:</span><br><span class="line">	def done(self):</span><br><span class="line">		Future的_result成员是否被设置</span><br><span class="line">	def result(self, timeout&#x3D;None):</span><br><span class="line">		获取Future对象的结果</span><br><span class="line">	def add_done_callback(self, fn):</span><br><span class="line">		添加一个回调函数fn给Future对象。如果这个Future对象已经done，则直接执行fn，否则将fn加入到Future类的一个成员列表中保存。</span><br><span class="line">	def _set_done(self):</span><br><span class="line">		一个内部函数，主要是遍历列表，逐个调用列表中的callback函数，也就是前面add_done_calback加如来的。</span><br><span class="line">	def set_result(self, result):</span><br><span class="line">		给Future对象设置result，并且调用_set_done。也就是说，当Future对象获得result后，所有add_done_callback加入的回调函数就会执行。</span><br></pre></td></tr></table></figure>
-<p>Future对象实际是coroutine函数装饰器和IOLoop的沟通使者，有着非常重要的作用。    </p>
-<h3 id="IoLoop类"><a href="#IoLoop类" class="headerlink" title="IoLoop类"></a>IoLoop类</h3><p>在协程运行环境中担任着协程调度器的角色，一种事件循环，等待事件，然后运行对应的事件处理器(handler），<br>主要调度处理IO事件，</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def add_future(self, future, callback):</span><br><span class="line">    assert is_future(future)</span><br><span class="line">    callback &#x3D; stack_context.wrap(callback)</span><br><span class="line">    future.add_done_callback(</span><br><span class="line">        lambda future: self.add_callback(callback, future))</span><br></pre></td></tr></table></figure>
-<p>当future对象被set_result，执行一个回调函数，lambda函数执行add_callback，将参数callback加入IoLoop的统一调度中，<br>让callback在下一次迭代中执行</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/22/Tornado2/" data-id="ckibka3970009pejx70o10v9r" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -893,6 +880,14 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
       <ul>
         
           <li>
+            <a href="/2020/12/05/Flask-10/">Flask(10)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/05/Flask-9/">Flask(9)</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/04/Flask-8/">Flask(8)</a>
           </li>
         
@@ -902,14 +897,6 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
         
           <li>
             <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
           </li>
         
       </ul>

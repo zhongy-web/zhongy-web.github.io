@@ -64,6 +64,109 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Flask-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/23/Flask-1/" class="article-date">
+  <time datetime="2020-11-23T11:48:11.000Z" itemprop="datePublished">2020-11-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/23/Flask-1/">Flask(1)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Flask上下文变量"><a href="#Flask上下文变量" class="headerlink" title="Flask上下文变量"></a>Flask上下文变量</h2><p>Flask在分派请求之前先激活应用或请求上下文，请求完成后再将其删除<br>推送方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">app_ctx &#x3D; app.app_context()</span><br><span class="line">app_ctx.push()</span><br></pre></td></tr></table></figure>
+<p>记住session是一个字典。</p>
+<h4 id="request"><a href="#request" class="headerlink" title="request"></a>request</h4><p>environ 请求的原始WSGI环境字典</p>
+<h3 id="请求钩子"><a href="#请求钩子" class="headerlink" title="请求钩子"></a>请求钩子</h3><p>装饰器<br>before_request<br>after_request<br>在请求钩子函数和视图函数之间共享数据一般使用上下文变量g</p>
+<h4 id="response"><a href="#response" class="headerlink" title="response"></a>response</h4><p>get_data()获取响应的body</p>
+<p>flask 提供了 abort（int）函数，用于处理错误。</p>
+<h3 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h3><p>例子<br><code>Hello,&#123; &#123; name|capitalize &#125; &#125;</code></p>
+<table>
+<thead>
+<tr>
+<th>过滤器名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>safe</td>
+<td>渲染值时不转义</td>
+</tr>
+<tr>
+<td>capitalize</td>
+<td>首字母大写，其他小写</td>
+</tr>
+</tbody></table>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/23/Flask-1/" data-id="ckibka38d0000pejxfve73xvs" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Tornado2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/22/Tornado2/" class="article-date">
+  <time datetime="2020-11-22T14:13:49.000Z" itemprop="datePublished">2020-11-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/22/Tornado2/">Tornado2</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>我们在平常编程中，更习惯使用的是子例程(subroutine)，通俗的叫法是函数，或者过程。子例程，往往只有一个入口(函数调用，实参通过传给形参开始执行)，一个出口(函数return，执行完毕，或者引发异常，将控制权转移给调用者)。但协程是子例程基础上，一种更加宽泛定义的计算机程序模块(子例程可以看做协程的特例)，它可以有多个入口点，允许从一个入口点，执行到下一个入口点之前暂停，保存执行状态，等到合适的时机恢复执行状态，<br>从下一个入口点重新开始执行，这也是协程应该具有的能力。</p>
+<h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><p>生成器是一个含有yield表达式的函数，一个生成器永远是异步的，执行next方法会继续yield的下一步操作。<br>一个真正的协程能够控制代码什么时候继续执行。而一个Generator执行遇到一个yield表达式 或者语句，会将执行控制权转移给调用者，<br>可以实现一个顶级的调度子例程，将执行控制权转移回Generator，而ioLoop就是一个顶级的调度子例程。</p>
+<h3 id="Future类"><a href="#Future类" class="headerlink" title="Future类"></a>Future类</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Future类重要成员函数:</span><br><span class="line">	def done(self):</span><br><span class="line">		Future的_result成员是否被设置</span><br><span class="line">	def result(self, timeout&#x3D;None):</span><br><span class="line">		获取Future对象的结果</span><br><span class="line">	def add_done_callback(self, fn):</span><br><span class="line">		添加一个回调函数fn给Future对象。如果这个Future对象已经done，则直接执行fn，否则将fn加入到Future类的一个成员列表中保存。</span><br><span class="line">	def _set_done(self):</span><br><span class="line">		一个内部函数，主要是遍历列表，逐个调用列表中的callback函数，也就是前面add_done_calback加如来的。</span><br><span class="line">	def set_result(self, result):</span><br><span class="line">		给Future对象设置result，并且调用_set_done。也就是说，当Future对象获得result后，所有add_done_callback加入的回调函数就会执行。</span><br></pre></td></tr></table></figure>
+<p>Future对象实际是coroutine函数装饰器和IOLoop的沟通使者，有着非常重要的作用。    </p>
+<h3 id="IoLoop类"><a href="#IoLoop类" class="headerlink" title="IoLoop类"></a>IoLoop类</h3><p>在协程运行环境中担任着协程调度器的角色，一种事件循环，等待事件，然后运行对应的事件处理器(handler），<br>主要调度处理IO事件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def add_future(self, future, callback):</span><br><span class="line">    assert is_future(future)</span><br><span class="line">    callback &#x3D; stack_context.wrap(callback)</span><br><span class="line">    future.add_done_callback(</span><br><span class="line">        lambda future: self.add_callback(callback, future))</span><br></pre></td></tr></table></figure>
+<p>当future对象被set_result，执行一个回调函数，lambda函数执行add_callback，将参数callback加入IoLoop的统一调度中，<br>让callback在下一次迭代中执行</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/22/Tornado2/" data-id="ckibka3970009pejx70o10v9r" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Tornado1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/11/22/Tornado1/" class="article-date">
@@ -201,6 +304,14 @@
       <ul>
         
           <li>
+            <a href="/2020/12/05/Flask-10/">Flask(10)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/05/Flask-9/">Flask(9)</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/04/Flask-8/">Flask(8)</a>
           </li>
         
@@ -210,14 +321,6 @@
         
           <li>
             <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
           </li>
         
       </ul>

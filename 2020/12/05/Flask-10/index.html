@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(10) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="用户资料资料信息123456789101112class User(UserMixin, db.Model):    # ...    name &#x3D; db.Column(db.String(64))    location &#x3D; db.Column(db.String(64))    about_me &#x3D; db.Column(db.Text())    member_s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(10)">
+<meta property="og:url" content="http://example.com/2020/12/05/Flask-10/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="用户资料资料信息123456789101112class User(UserMixin, db.Model):    # ...    name &#x3D; db.Column(db.String(64))    location &#x3D; db.Column(db.String(64))    about_me &#x3D; db.Column(db.Text())    member_s">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-05T12:54:39.000Z">
+<meta property="article:modified_time" content="2020-12-05T12:55:04.772Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-10" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/05/Flask-10/" class="article-date">
+  <time datetime="2020-12-05T12:54:39.000Z" itemprop="datePublished">2020-12-05</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(10)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="用户资料"><a href="#用户资料" class="headerlink" title="用户资料"></a>用户资料</h1><h2 id="资料信息"><a href="#资料信息" class="headerlink" title="资料信息"></a>资料信息</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">class User(UserMixin, db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    name &#x3D; db.Column(db.String(64))</span><br><span class="line">    location &#x3D; db.Column(db.String(64))</span><br><span class="line">    about_me &#x3D; db.Column(db.Text())</span><br><span class="line">    member_since &#x3D; db.Column(db.DateTime(), default&#x3D;datetime.utcnow)</span><br><span class="line">    last_seen &#x3D; db.Column(db.DateTime(), default&#x3D;datetime.utcnow)</span><br><span class="line"></span><br><span class="line">    # 刷新最后登录时间</span><br><span class="line">    def ping(self):</span><br><span class="line">        self.last_seen &#x3D; datetime.utcnow()</span><br><span class="line">        db.session.add(self)</span><br></pre></td></tr></table></figure>
+<h2 id="用户资料页面"><a href="#用户资料页面" class="headerlink" title="用户资料页面"></a>用户资料页面</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;user&#x2F;&lt;username&gt;&#39;)</span><br><span class="line">def user(username):</span><br><span class="line">    user &#x3D; User.query.filter_by(username&#x3D;username).first_or_404()</span><br><span class="line">    return render_template(&#39;user.html&#39;, user&#x3D;user)</span><br></pre></td></tr></table></figure>
+<h2 id="编辑模板"><a href="#编辑模板" class="headerlink" title="编辑模板"></a>编辑模板</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &quot;base.html&quot; %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block title %&#125;Flasky - &#123;&#123; user.username &#125;&#125;&#123;% endblock %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block page_content %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;page-header&quot;&gt;</span><br><span class="line">    &lt;h1&gt;&#123;&#123; user.username &#125;&#125;&lt;&#x2F;h1&gt;</span><br><span class="line">    &#123;% if user.name or user.location %&#125;</span><br><span class="line">    &lt;p&gt;</span><br><span class="line">        &#123;% if user.name %&#125;&#123;&#123; user.name &#125;&#125;&#123;% endif %&#125;</span><br><span class="line">        &#123;% if user.location %&#125;</span><br><span class="line">        # 使用谷歌地图，找到当前位置</span><br><span class="line">            from &lt;a href&#x3D;&quot;http:&#x2F;&#x2F;maps.google.com&#x2F;?q&#x3D;&#123;&#123; user.location &#125;&#125;&quot;&gt;&#123;&#123; user.location &#125;&#125;&lt;&#x2F;a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">    &lt;&#x2F;p&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    &#123;% if current_user.is_administrator() %&#125;</span><br><span class="line">    &lt;p&gt;&lt;a href&#x3D;&quot;mailto:&#123;&#123; user.email &#125;&#125;&quot;&gt;&#123;&#123; user.email &#125;&#125;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">    &#123;% if user.about_me %&#125;&lt;p&gt;&#123;&#123; user.about_me &#125;&#125;&lt;&#x2F;p&gt;&#123;% endif %&#125;</span><br><span class="line">    &lt;p&gt;Member since &#123;&#123; moment(user.member_since).format(&#39;L&#39;) &#125;&#125;. Last seen &#123;&#123; moment(user.last_seen).fromNow() &#125;&#125;.&lt;&#x2F;p&gt;</span><br><span class="line">    &lt;p&gt;</span><br><span class="line">        &#123;% if user &#x3D;&#x3D; current_user %&#125;</span><br><span class="line">        &lt;a class&#x3D;&quot;btn btn-default&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.edit_profile&#39;) &#125;&#125;&quot;&gt;Edit Profile&lt;&#x2F;a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">        &#123;% if current_user.is_administrator() %&#125;</span><br><span class="line">        &lt;a class&#x3D;&quot;btn btn-danger&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.edit_profile_admin&#39;, id&#x3D;user.id) &#125;&#125;&quot;&gt;Edit Profile [Admin]&lt;&#x2F;a&gt;</span><br><span class="line">        &#123;% endif %&#125;</span><br><span class="line">    &lt;&#x2F;p&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="资料编辑路由"><a href="#资料编辑路由" class="headerlink" title="资料编辑路由"></a>资料编辑路由</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;edit-profile&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">@login_required</span><br><span class="line">def edit_profile():</span><br><span class="line">    form &#x3D; EditProfileForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        current_user.name &#x3D; form.name.data</span><br><span class="line">        current_user.location &#x3D; form.location.data</span><br><span class="line">        current_user.about_me &#x3D; form.about_me.data</span><br><span class="line">        #current_user._get_current_object()返回的是真实对象，如果不使用该方法，上下文变量无法使用，可能会导致一些错误。</span><br><span class="line">        db.session.add(current_user._get_current_object())</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;Your profile has been updated.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.user&#39;, username&#x3D;current_user.username))</span><br><span class="line">    form.name.data &#x3D; current_user.name</span><br><span class="line">    form.location.data &#x3D; current_user.location</span><br><span class="line">    form.about_me.data &#x3D; current_user.about_me</span><br><span class="line">    return render_template(&#39;edit_profile.html&#39;, form&#x3D;form)</span><br></pre></td></tr></table></figure>
+<h2 id="管理员级资料编辑器"><a href="#管理员级资料编辑器" class="headerlink" title="管理员级资料编辑器"></a>管理员级资料编辑器</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">class EditProfileAdminForm(FlaskForm):</span><br><span class="line">    email &#x3D; StringField(&#39;Email&#39;, validators&#x3D;[DataRequired(), Length(1, 64),</span><br><span class="line">                                             Email()])</span><br><span class="line">    username &#x3D; StringField(&#39;Username&#39;, validators&#x3D;[</span><br><span class="line">        DataRequired(), Length(1, 64),</span><br><span class="line">        Regexp(&#39;^[A-Za-z][A-Za-z0-9_.]*$&#39;, 0,</span><br><span class="line">               &#39;Usernames must have only letters, numbers, dots or &#39;</span><br><span class="line">               &#39;underscores&#39;)])</span><br><span class="line">    confirmed &#x3D; BooleanField(&#39;Confirmed&#39;)</span><br><span class="line">    role &#x3D; SelectField(&#39;Role&#39;, coerce&#x3D;int) # coerce&#x3D;int将字段的值转为整数</span><br><span class="line">    name &#x3D; StringField(&#39;Real name&#39;, validators&#x3D;[Length(0, 64)])</span><br><span class="line">    location &#x3D; StringField(&#39;Location&#39;, validators&#x3D;[Length(0, 64)])</span><br><span class="line">    about_me &#x3D; TextAreaField(&#39;About me&#39;)</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br><span class="line"></span><br><span class="line">    #初始化原因：为了搭建role复选框。</span><br><span class="line">    def __init__(self, user, *args, **kwargs):</span><br><span class="line">        super(EditProfileAdminForm, self).__init__(*args, **kwargs)</span><br><span class="line">        self.role.choices &#x3D; [(role.id, role.name)</span><br><span class="line">                             for role in Role.query.order_by(Role.name).all()]</span><br><span class="line">        # 该user由视图函数传过来的。</span><br><span class="line">        self.user &#x3D; user</span><br><span class="line"></span><br><span class="line">    def validate_email(self, field):</span><br><span class="line">        if field.data !&#x3D; self.user.email and \</span><br><span class="line">                User.query.filter_by(email&#x3D;field.data).first():</span><br><span class="line">            raise ValidationError(&#39;Email already registered.&#39;)</span><br><span class="line"></span><br><span class="line">    def validate_username(self, field):</span><br><span class="line">        if field.data !&#x3D; self.user.username and \</span><br><span class="line">                User.query.filter_by(username&#x3D;field.data).first():</span><br><span class="line">            raise ValidationError(&#39;Username already in use.&#39;)</span><br></pre></td></tr></table></figure>
+<h2 id="管理员编辑路由"><a href="#管理员编辑路由" class="headerlink" title="管理员编辑路由"></a>管理员编辑路由</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;edit-profile&#x2F;&lt;int:id&gt;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">@login_required</span><br><span class="line">@admin_required</span><br><span class="line">#使用@admin_required装饰器，当非管理员尝试访问这个路由时会403错误。</span><br><span class="line">def edit_profile_admin(id):</span><br><span class="line">    user &#x3D; User.query.get_or_404(id)</span><br><span class="line">    # 向表单传递user</span><br><span class="line">    form &#x3D; EditProfileAdminForm(user&#x3D;user)</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        # ...</span><br><span class="line">        flash(&#39;The profile has been updated.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.user&#39;, username&#x3D;user.username))</span><br><span class="line">    form.email.data &#x3D; user.email</span><br><span class="line">    # ...</span><br><span class="line">    return render_template(&#39;edit_profile.html&#39;, form&#x3D;form, user&#x3D;user)</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/05/Flask-10/" data-id="ckibp94y20000bejxbcychru5" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/12/05/Flask-9/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flask(9)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/05/Flask-10/">Flask(10)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/05/Flask-9/">Flask(9)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
