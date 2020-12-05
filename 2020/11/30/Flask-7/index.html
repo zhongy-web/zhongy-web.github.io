@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(7) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Flask的身份验证扩展使用Werkzeug计算密码散列值只需要两个函数：generate_password_hash(password)和check_password_hash(hash,password)@property:该装饰器可以让密码无法直接读取。 12345678910111213password_hash &#x3D; db.Column(db.String(128))    @p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(7)">
+<meta property="og:url" content="http://example.com/2020/11/30/Flask-7/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Flask的身份验证扩展使用Werkzeug计算密码散列值只需要两个函数：generate_password_hash(password)和check_password_hash(hash,password)@property:该装饰器可以让密码无法直接读取。 12345678910111213password_hash &#x3D; db.Column(db.String(128))    @p">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-30T13:52:04.000Z">
+<meta property="article:modified_time" content="2020-11-30T13:52:45.377Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-7" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/30/Flask-7/" class="article-date">
+  <time datetime="2020-11-30T13:52:04.000Z" itemprop="datePublished">2020-11-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(7)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Flask的身份验证扩展"><a href="#Flask的身份验证扩展" class="headerlink" title="Flask的身份验证扩展"></a>Flask的身份验证扩展</h1><h2 id="使用Werkzeug计算密码散列值"><a href="#使用Werkzeug计算密码散列值" class="headerlink" title="使用Werkzeug计算密码散列值"></a>使用Werkzeug计算密码散列值</h2><p>只需要两个函数：<br><code>generate_password_hash(password)</code>和<code>check_password_hash(hash,password)</code><br><code>@property</code>:该装饰器可以让密码无法直接读取。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">password_hash &#x3D; db.Column(db.String(128))</span><br><span class="line"></span><br><span class="line">    @property</span><br><span class="line">    def password(self):</span><br><span class="line">        raise AttributeError(&#39;password is not a readable attribute&#39;)</span><br><span class="line"></span><br><span class="line">    @password.setter</span><br><span class="line">    def password(self, password):</span><br><span class="line">        self.password_hash &#x3D; generate_password_hash(password)</span><br><span class="line"></span><br><span class="line">    def verify_password(self, password):</span><br><span class="line">        return check_password_hash(self.password_hash, password)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="创建身份验证蓝本（auth）"><a href="#创建身份验证蓝本（auth）" class="headerlink" title="创建身份验证蓝本（auth）"></a>创建身份验证蓝本（auth）</h2><p><strong>记住蓝本一定要注册，否则无法使用！！</strong></p>
+<p>如果使用url_prefix参数，则蓝本中定义的路由都要加上指定前缀：<br><code>app.register_blueprint(auth_blueprint, url_prefix=&#39;/auth&#39;)</code>  </p>
+<h2 id="flask-login验证用户身份"><a href="#flask-login验证用户身份" class="headerlink" title="flask-login验证用户身份"></a>flask-login验证用户身份</h2><table>
+<thead>
+<tr>
+<th>属性/方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>is_authenticated</td>
+<td>如果用户提供的登录凭据有效，必须返回True，否则返回False</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>如果允许用户登录，则必须返回True，否则返回False，如果想禁用账户，可以返回False</td>
+</tr>
+<tr>
+<td>is_anonymous</td>
+<td>对普通用户必须始终返回False，如果是表示匿名用户的特殊用户对象，应该返回True</td>
+</tr>
+<tr>
+<td>get_id()</td>
+<td>必须返回用户的唯一标识符，使用Unicode编码字符串</td>
+</tr>
+</tbody></table>
+<h4 id="Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面"><a href="#Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面" class="headerlink" title="Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面"></a>Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">login_manager &#x3D; LoginManager()</span><br><span class="line">login_manager.login_view &#x3D; &#39;auth.login&#39; # login_view属性用于设置登录页面的端点。</span><br></pre></td></tr></table></figure>
+<p>Flask-Login要求应用指定一个函数，在扩展需要从数据库中获取指定标识符对应的用户时调用。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@login_manager.user_loader</span><br><span class="line">def load_user(user_id):</span><br><span class="line">    return User.query.get(int(user_id))</span><br><span class="line"></span><br><span class="line">需要获取已登录的用户信息时调用，这个函数的返回值必须是用户对象，否则返回None</span><br></pre></td></tr></table></figure>
+<p>保护路由：使用<code>@login_required</code>  </p>
+<h3 id="登入用户"><a href="#登入用户" class="headerlink" title="登入用户"></a>登入用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;login&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def login():</span><br><span class="line">    form &#x3D; LoginForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User.query.filter_by(email&#x3D;form.email.data.lower()).first()</span><br><span class="line">        if user is not None and user.verify_password(form.password.data):</span><br><span class="line">            login_user(user, form.remember_me.data) # 调用Flask-Login里的login_user()方法，参数为需要登录的用户和可选的“记住我”，如果不选，则关闭浏览器后，用户会话就失效。</span><br><span class="line">            next &#x3D; request.args.get(&#39;next&#39;)</span><br><span class="line">            if next is None or not next.startswith(&#39;&#x2F;&#39;): # 防止其他网站的恶意重定向</span><br><span class="line">                next &#x3D; url_for(&#39;main.index&#39;)</span><br><span class="line">            return redirect(next) # 返回原来访问的URL，保存在next中</span><br><span class="line">        flash(&#39;Invalid email or password.&#39;)</span><br><span class="line">    return render_template(&#39;auth&#x2F;login.html&#39;, form&#x3D;form)</span><br></pre></td></tr></table></figure>
+
+<h3 id="登出用户"><a href="#登出用户" class="headerlink" title="登出用户"></a>登出用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">一定要记得先注册路由，再使用路由保护，否则会发生错误</span><br><span class="line">@auth.route(&#39;&#x2F;logout&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def logout():</span><br><span class="line">    logout_user() # 删除并重设用户会话</span><br><span class="line">    flash(&#39;You have been logged out.&#39;)</span><br><span class="line">    return redirect(url_for(&#39;main.index&#39;))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/30/Flask-7/" data-id="ckibka3910006pejx3684fuua" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/12/04/Flask-8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Flask(8)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">考前笔记</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

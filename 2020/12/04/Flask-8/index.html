@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(8) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="理解Flask-Login的运作方式 用户点击Log In链接，访问http:&#x2F;&#x2F;localhost:5000&#x2F;auth&#x2F;login。处理这个URL的函数返回登录表单模板   用户输入，点击提交，变为post请求。   处理函数验证通过表单提交的凭据，然后调用Flask-login的login_user()函数，登入用户。   login_user(user)函数把用户ID以字符串的形式写入用户会">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(8)">
+<meta property="og:url" content="http://example.com/2020/12/04/Flask-8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="理解Flask-Login的运作方式 用户点击Log In链接，访问http:&#x2F;&#x2F;localhost:5000&#x2F;auth&#x2F;login。处理这个URL的函数返回登录表单模板   用户输入，点击提交，变为post请求。   处理函数验证通过表单提交的凭据，然后调用Flask-login的login_user()函数，登入用户。   login_user(user)函数把用户ID以字符串的形式写入用户会">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-04T13:32:31.000Z">
+<meta property="article:modified_time" content="2020-12-04T13:33:51.243Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-8" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/04/Flask-8/" class="article-date">
+  <time datetime="2020-12-04T13:32:31.000Z" itemprop="datePublished">2020-12-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(8)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="理解Flask-Login的运作方式"><a href="#理解Flask-Login的运作方式" class="headerlink" title="理解Flask-Login的运作方式"></a>理解Flask-Login的运作方式</h3><ol>
+<li>用户点击Log In链接，访问<a target="_blank" rel="noopener" href="http://localhost:5000/auth/login%E3%80%82%E5%A4%84%E7%90%86%E8%BF%99%E4%B8%AAURL%E7%9A%84%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%99%BB%E5%BD%95%E8%A1%A8%E5%8D%95%E6%A8%A1%E6%9D%BF">http://localhost:5000/auth/login。处理这个URL的函数返回登录表单模板</a>  </li>
+<li>用户输入，点击提交，变为post请求。  <ol>
+<li>处理函数验证通过表单提交的凭据，然后调用Flask-login的login_user()函数，登入用户。  </li>
+<li>login_user(user)函数把用户ID以字符串的形式写入用户会话中。  </li>
+<li>视图函数重定向回首页。  </li>
+</ol>
+</li>
+<li>浏览器收到重定向响应，请求首页。  <ol>
+<li>调用首页的视图函数，渲染主页模板  </li>
+<li>在渲染这个Jinja2模板过程中，首次对Flask-login的current_user()引用  </li>
+<li>这个请求还没有给上下文变量current_user赋值，因此调用Flask-Login内部的<code>_get_user()</code>函数，找出用户。</li>
+<li><code>_get_user()</code>函数会检查用户会话中有没有用户的ID，没有则返回一个Flask-Login的AnonymousUser实例；有则调用应用中使用user_loader装饰器注册的函数，传入用户ID。  </li>
+<li>应用中的user_loader处理函数从数据库中读取用户，将其返回。Flask-Login把返回的用户对象赋值给当前请求的current_user上下文变量。  </li>
+<li>模板收到新复制的current_user。  </li>
+</ol>
+</li>
+</ol>
+<p>使用login_required装饰器的视图函数，将使用current_user上下文变量判断current_user.is_authenticated表达式结果是否为True。  </p>
+<h2 id="注册新用户"><a href="#注册新用户" class="headerlink" title="注册新用户"></a>注册新用户</h2><h3 id="添加用户注册表单"><a href="#添加用户注册表单" class="headerlink" title="添加用户注册表单"></a>添加用户注册表单</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class RegistrationForm(FlaskForm):</span><br><span class="line">    email &#x3D; StringField(&#39;Email&#39;, validators&#x3D;[DataRequired(), Length(1, 64),</span><br><span class="line">                                             Email()])</span><br><span class="line">    username &#x3D; StringField(&#39;Username&#39;, validators&#x3D;[</span><br><span class="line">        DataRequired(), Length(1, 64),</span><br><span class="line">        Regexp(&#39;^[A-Za-z][A-Za-z0-9_.]*$&#39;, 0,</span><br><span class="line">               &#39;Usernames must have only letters, numbers, dots or &#39;</span><br><span class="line">               &#39;underscores&#39;)])</span><br><span class="line">    password &#x3D; PasswordField(&#39;Password&#39;, validators&#x3D;[</span><br><span class="line">        DataRequired(), EqualTo(&#39;password2&#39;, message&#x3D;&#39;Passwords must match.&#39;)])</span><br><span class="line">    password2 &#x3D; PasswordField(&#39;Confirm password&#39;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Register&#39;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="注册新用户-1"><a href="#注册新用户-1" class="headerlink" title="注册新用户"></a>注册新用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;register&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def register():</span><br><span class="line">    form &#x3D; RegistrationForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User(email&#x3D;form.email.data.lower(),</span><br><span class="line">                    username&#x3D;form.username.data,</span><br><span class="line">                    password&#x3D;form.password.data)</span><br><span class="line">        db.session.add(user)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;You can now login.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;auth.login&#39;))</span><br><span class="line">    return render_template(&#39;auth&#x2F;register.html&#39;, form&#x3D;form)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="确认账户"><a href="#确认账户" class="headerlink" title="确认账户"></a>确认账户</h2><h3 id="使用itsdangerous生成确认令牌"><a href="#使用itsdangerous生成确认令牌" class="headerlink" title="使用itsdangerous生成确认令牌"></a>使用itsdangerous生成确认令牌</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def generate_confirmation_token(self, expiration&#x3D;3600): # expiration有效时间</span><br><span class="line">        s &#x3D; Serializer(current_app.config[&#39;SECRET_KEY&#39;], expiration) # 使用TimedJSONWebSignatureSerializer类，生成一个具有过期时间的JSON Web签名（JWS），接受的参数为密钥，可以使用SECRET_KEY</span><br><span class="line">        return s.dumps(&#123;&#39;confirm&#39;: self.id&#125;).decode(&#39;utf-8&#39;) # dumps方法为指定数据生成一个加密签名。</span><br><span class="line"></span><br><span class="line">    def confirm(self, token):</span><br><span class="line">        s &#x3D; Serializer(current_app.config[&#39;SECRET_KEY&#39;])</span><br><span class="line">        try:</span><br><span class="line">            data &#x3D; s.loads(token.encode(&#39;utf-8&#39;)) # 与dumps对应，检验签名和过期时间</span><br><span class="line">        except:</span><br><span class="line">            return False</span><br><span class="line">        if data.get(&#39;confirm&#39;) !&#x3D; self.id:</span><br><span class="line">            return False</span><br><span class="line">        self.confirmed &#x3D; True</span><br><span class="line">        db.session.add(self)</span><br><span class="line">        return True</span><br><span class="line">        返回True代表认证成功。</span><br></pre></td></tr></table></figure>
+<h3 id="发送确认邮件"><a href="#发送确认邮件" class="headerlink" title="发送确认邮件"></a>发送确认邮件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;register&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def register():</span><br><span class="line">    form &#x3D; RegistrationForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        # ...</span><br><span class="line">        db.session.add(user)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        token &#x3D; user.generate_confirmation_token() # 注册令牌</span><br><span class="line">        send_email(user.email, &#39;Confirm Your Account&#39;,</span><br><span class="line">                   &#39;auth&#x2F;email&#x2F;confirm&#39;, user&#x3D;user, token&#x3D;token)</span><br><span class="line">        flash(&#39;A confirmation email has been sent to you by email.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;auth.login&#39;))</span><br><span class="line">    return render_template(&#39;auth&#x2F;register.html&#39;, form&#x3D;form)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>发送文本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Dear &#123;&#123; user.username &#125;&#125;,</span><br><span class="line"></span><br><span class="line">Welcome to Flasky!</span><br><span class="line"></span><br><span class="line">To confirm your account please click on the following link:</span><br><span class="line"></span><br><span class="line">&#123;&#123; url_for(&#39;auth.confirm&#39;, token&#x3D;token, _external&#x3D;True) &#125;&#125; # url_for()返回相对URL，_external&#x3D;True会返回一个完整的URL</span><br><span class="line"></span><br><span class="line">Sincerely,</span><br><span class="line"></span><br><span class="line">The Flasky Team</span><br><span class="line"></span><br><span class="line">Note: replies to this email address are not monitored.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>确认用户的账户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;confirm&#x2F;&lt;token&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def confirm(token):</span><br><span class="line">    if current_user.confirmed:</span><br><span class="line">        return redirect(url_for(&#39;main.index&#39;))</span><br><span class="line">    if current_user.confirm(token):</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;You have confirmed your account. Thanks!&#39;)</span><br><span class="line">    else:</span><br><span class="line">        flash(&#39;The confirmation link is invalid or has expired.&#39;)</span><br><span class="line">    return redirect(url_for(&#39;main.index&#39;))</span><br></pre></td></tr></table></figure>
+<p>在蓝本中使用钩子，只能应用到属于蓝本的请求上，如果想要在蓝本中使用针对应用全局请求的钩子，必须使用before_app_request装饰器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@auth.before_app_request</span><br><span class="line">def before_request():</span><br><span class="line">    if current_user.is_authenticated \</span><br><span class="line">            and not current_user.confirmed \</span><br><span class="line">            and request.endpoint \</span><br><span class="line">            and request.blueprint !&#x3D; &#39;auth&#39; \</span><br><span class="line">            and request.endpoint !&#x3D; &#39;static&#39;:</span><br><span class="line">        return redirect(url_for(&#39;auth.unconfirmed&#39;))</span><br><span class="line">满足3个条件会拦截：</span><br><span class="line">（1）用户已登录（current_user.is_authenticated为True）</span><br><span class="line">（2）还未认证</span><br><span class="line">（3）请求的URL不在身份验证蓝本中，而且也不是对静态文件的请求。</span><br><span class="line">满足则会重定向到auth.unconfirmed路由中。</span><br><span class="line"></span><br><span class="line">@auth.route(&#39;&#x2F;unconfirmed&#39;)</span><br><span class="line">def unconfirmed():</span><br><span class="line">    if current_user.is_anonymous or current_user.confirmed:</span><br><span class="line">        return redirect(url_for(&#39;main.index&#39;))</span><br><span class="line">    return render_template(&#39;auth&#x2F;unconfirmed.html&#39;)</span><br></pre></td></tr></table></figure>
+<p>重新发送账户确认邮件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;confirm&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def resend_confirmation():</span><br><span class="line">    token &#x3D; current_user.generate_confirmation_token()</span><br><span class="line">    send_email(current_user.email, &#39;Confirm Your Account&#39;,</span><br><span class="line">               &#39;auth&#x2F;email&#x2F;confirm&#39;, user&#x3D;current_user, token&#x3D;token)</span><br><span class="line">    flash(&#39;A new confirmation email has been sent to you by email.&#39;)</span><br><span class="line">    return redirect(url_for(&#39;main.index&#39;))</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/04/Flask-8/" data-id="ckibka3930007pejxfeh58sjh" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/11/30/Flask-7/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flask(7)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

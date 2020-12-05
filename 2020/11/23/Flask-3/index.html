@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(3) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="flask-wtf web表单要先配置 SECRET_KEY 密钥，为所有表单生成安全令牌，可以防止CSRF攻击 表单类定义： 1234class NameForm(FlaskForm):    name &#x3D; StringField(&#39;What is your name?&#39;, validators&#x3D;[DataRequired()])    submit &amp;#x3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(3)">
+<meta property="og:url" content="http://example.com/2020/11/23/Flask-3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="flask-wtf web表单要先配置 SECRET_KEY 密钥，为所有表单生成安全令牌，可以防止CSRF攻击 表单类定义： 1234class NameForm(FlaskForm):    name &#x3D; StringField(&#39;What is your name?&#39;, validators&#x3D;[DataRequired()])    submit &amp;#x3">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-23T11:56:23.000Z">
+<meta property="article:modified_time" content="2020-11-23T12:00:05.797Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/23/Flask-3/" class="article-date">
+  <time datetime="2020-11-23T11:56:23.000Z" itemprop="datePublished">2020-11-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(3)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="flask-wtf-web表单"><a href="#flask-wtf-web表单" class="headerlink" title="flask-wtf web表单"></a>flask-wtf web表单</h2><p>要先配置 SECRET_KEY 密钥，为所有表单生成安全令牌，可以防止CSRF攻击</p>
+<h3 id="表单类"><a href="#表单类" class="headerlink" title="表单类"></a>表单类</h3><p>定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class NameForm(FlaskForm):</span><br><span class="line">    name &#x3D; StringField(&#39;What is your name?&#39;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="WTForms支持的HTML标准字段"><a href="#WTForms支持的HTML标准字段" class="headerlink" title="WTForms支持的HTML标准字段"></a>WTForms支持的HTML标准字段</h3><table>
+<thead>
+<tr>
+<th>字段对象</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>StringField</td>
+<td>文本字段</td>
+</tr>
+<tr>
+<td>TextAreaField</td>
+<td>多行文本字段</td>
+</tr>
+<tr>
+<td>PasswordField</td>
+<td>密码文本字段</td>
+</tr>
+<tr>
+<td>HiddenField</td>
+<td>隐藏文件字段</td>
+</tr>
+<tr>
+<td>DateField</td>
+<td>文本字段，值为 datetime.date 文本格式</td>
+</tr>
+<tr>
+<td>DateTimeField</td>
+<td>文本字段，值为 datetime.datetime 文本格式</td>
+</tr>
+<tr>
+<td>IntegerField</td>
+<td>文本字段，值为整数</td>
+</tr>
+<tr>
+<td>DecimalField</td>
+<td>文本字段，值为decimal.Decimal</td>
+</tr>
+<tr>
+<td>FloatField</td>
+<td>文本字段，值为浮点数</td>
+</tr>
+<tr>
+<td>BooleanField</td>
+<td>复选框，值为True 和 False</td>
+</tr>
+<tr>
+<td>RadioField</td>
+<td>一组单选框</td>
+</tr>
+<tr>
+<td>SelectField</td>
+<td>下拉列表</td>
+</tr>
+<tr>
+<td>SelectMutipleField</td>
+<td>下拉列表，可选择多个值</td>
+</tr>
+<tr>
+<td>FileField</td>
+<td>文件上传字段</td>
+</tr>
+<tr>
+<td>SubmitField</td>
+<td>表单提交按钮</td>
+</tr>
+<tr>
+<td>FormField</td>
+<td>把表单作为字段嵌入另一个表单</td>
+</tr>
+<tr>
+<td>FieldList</td>
+<td>一组指定类型的字段</td>
+</tr>
+</tbody></table>
+<h3 id="WTForms验证函数"><a href="#WTForms验证函数" class="headerlink" title="WTForms验证函数"></a>WTForms验证函数</h3><table>
+<thead>
+<tr>
+<th>验证函数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DataRequired</td>
+<td>确保字段中有数据</td>
+</tr>
+<tr>
+<td>EqualTo</td>
+<td>比较两个字段的值，常用于比较两次密码输入</td>
+</tr>
+<tr>
+<td>Length</td>
+<td>验证输入的字符串长度</td>
+</tr>
+<tr>
+<td>NumberRange</td>
+<td>验证输入的值在数字范围内</td>
+</tr>
+<tr>
+<td>URL</td>
+<td>验证URL</td>
+</tr>
+<tr>
+<td>AnyOf</td>
+<td>验证输入值在可选列表中</td>
+</tr>
+<tr>
+<td>NoneOf</td>
+<td>验证输入值不在可选列表中</td>
+</tr>
+</tbody></table>
+<h4 id="快速渲染表单："><a href="#快速渲染表单：" class="headerlink" title="快速渲染表单："></a>快速渲染表单：</h4><p>{ % import “bootstrap/wtf.html” as wtf % }<br>{ { wtf.quick_form(form) } }</p>
+<h3 id="重定向与用户会话"><a href="#重定向与用户会话" class="headerlink" title="重定向与用户会话"></a>重定向与用户会话</h3><p>提交post请求后，一旦请求消失，则数据也会跟着消失，因此使用上下文变量session来保存请求之间的数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; NameForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        session[&#39;name&#39;] &#x3D; form.name.data</span><br><span class="line">        return redirect(url_for(&#39;index&#39;))</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, name&#x3D;session.get(&#39;name&#39;))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/23/Flask-3/" data-id="ckibka38u0002pejx3qq2bxq9" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/11/23/Flask-4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Flask(4)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/11/23/Flask-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flask(2)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

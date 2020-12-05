@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(6) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="flask-mail提供电子邮件支持配置flask-mail使用qq邮箱   12345app.config[&#39;MAIL_SERVER&#39;] &#x3D; &#39;smtp.qq.com&#39;app.config[&#39;MAIL_PORT&#39;] &#x3D; 587app.config[&#39;MAIL_USE_TLS&#39;] &#x3D; Trueapp.co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(6)">
+<meta property="og:url" content="http://example.com/2020/11/26/Flask-6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="flask-mail提供电子邮件支持配置flask-mail使用qq邮箱   12345app.config[&#39;MAIL_SERVER&#39;] &#x3D; &#39;smtp.qq.com&#39;app.config[&#39;MAIL_PORT&#39;] &#x3D; 587app.config[&#39;MAIL_USE_TLS&#39;] &#x3D; Trueapp.co">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-26T13:30:58.000Z">
+<meta property="article:modified_time" content="2020-11-26T13:31:25.345Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-6" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/26/Flask-6/" class="article-date">
+  <time datetime="2020-11-26T13:30:58.000Z" itemprop="datePublished">2020-11-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(6)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="flask-mail提供电子邮件支持"><a href="#flask-mail提供电子邮件支持" class="headerlink" title="flask-mail提供电子邮件支持"></a>flask-mail提供电子邮件支持</h2><p>配置flask-mail使用qq邮箱  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">app.config[&#39;MAIL_SERVER&#39;] &#x3D; &#39;smtp.qq.com&#39;</span><br><span class="line">app.config[&#39;MAIL_PORT&#39;] &#x3D; 587</span><br><span class="line">app.config[&#39;MAIL_USE_TLS&#39;] &#x3D; True</span><br><span class="line">app.config[&#39;MAIL_USERNAME&#39;] &#x3D; os.environ.get(&#39;MAIL_USERNAME&#39;)</span><br><span class="line">app.config[&#39;MAIL_PASSWORD&#39;] &#x3D; os.environ.get(&#39;MAIL_PASSWORD&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>初始化flask-mail</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from flask_mail imort Mail</span><br><span class="line">mail &#x3D; Mail(app)</span><br></pre></td></tr></table></figure>
+<p>保存账号密码的环境变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export MAIL_USERNAME&#x3D;你的邮箱</span><br><span class="line">export MAIL_PASSWORD&#x3D;授权码</span><br></pre></td></tr></table></figure>
+
+<p>使用shell发送邮件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from flask_mail import Message</span><br><span class="line">&gt;&gt;&gt; from hello import mail</span><br><span class="line">&gt;&gt;&gt; msg &#x3D; Message(&#39;test email&#39;,sender&#x3D;&#39;2635464756@qq.com&#39;,</span><br><span class="line">... recipients&#x3D;[&#39;2635464756@qq.com&#39;])</span><br><span class="line">&gt;&gt;&gt; msg.body &#x3D; &#39;hi&#39;</span><br><span class="line">&gt;&gt;&gt; msg.html &#x3D; &#39;&lt;b&gt;html&lt;&#x2F;b&gt;&#39;</span><br><span class="line">&gt;&gt;&gt; with app.app_context():</span><br><span class="line">... 	mail.send(msg) # 要记得间隔！！不然会报错，send（）函数使用current_app，因此要在激活的应用上下文中执行。</span><br></pre></td></tr></table></figure>
+
+<h3 id="在应用中集成电子邮件发送功能"><a href="#在应用中集成电子邮件发送功能" class="headerlink" title="在应用中集成电子邮件发送功能"></a>在应用中集成电子邮件发送功能</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; NameForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User.query.filter_by(username&#x3D;form.name.data).first()</span><br><span class="line">        if user is None:</span><br><span class="line">            user &#x3D; User(username&#x3D;form.name.data)</span><br><span class="line">            db.session.add(user)</span><br><span class="line">            db.session.commit()</span><br><span class="line">            session[&#39;known&#39;] &#x3D; False</span><br><span class="line">            if app.config[&#39;FLASKY_ADMIN&#39;]:</span><br><span class="line">                send_email(app.config[&#39;FLASKY_ADMIN&#39;], &#39;New User&#39;,</span><br><span class="line">                           &#39;mail&#x2F;new_user&#39;, user&#x3D;user)</span><br><span class="line">        else:</span><br><span class="line">            session[&#39;known&#39;] &#x3D; True</span><br><span class="line">        session[&#39;name&#39;] &#x3D; form.name.data</span><br><span class="line">        return redirect(url_for(&#39;index&#39;))</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, name&#x3D;session.get(&#39;name&#39;),</span><br><span class="line">                           known&#x3D;session.get(&#39;known&#39;, False))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>电子邮件的收件人保存在环境变量FLASKY_ADMIN中，需要创建两个模板文件，分别用于渲染纯文本和HTML的邮件正文。</p>
+<h3 id="异步发送邮件"><a href="#异步发送邮件" class="headerlink" title="异步发送邮件"></a>异步发送邮件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">def send_async_email(app, msg):</span><br><span class="line">    with app.app_context():</span><br><span class="line">        mail.send(msg)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def send_email(to, subject, template, **kwargs):</span><br><span class="line">    msg &#x3D; Message(app.config[&#39;FLASKY_MAIL_SUBJECT_PREFIX&#39;] + &#39; &#39; + subject,</span><br><span class="line">                  sender&#x3D;app.config[&#39;FLASKY_MAIL_SENDER&#39;], recipients&#x3D;[to])</span><br><span class="line">    msg.body &#x3D; render_template(template + &#39;.txt&#39;, **kwargs)</span><br><span class="line">    msg.html &#x3D; render_template(template + &#39;.html&#39;, **kwargs)</span><br><span class="line">    thr &#x3D; Thread(target&#x3D;send_async_email, args&#x3D;[app, msg])</span><br><span class="line">    thr.start()</span><br><span class="line">    return thr</span><br><span class="line"></span><br><span class="line">这不是最好的解决方式，如果要发送大量电子邮件，可以发给Celery任务队列处理。</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/26/Flask-6/" data-id="ckibka3900005pejx3zts24in" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          考前笔记
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/11/26/Flask-5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flask(5)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

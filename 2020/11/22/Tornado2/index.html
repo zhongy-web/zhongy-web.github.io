@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Tornado2 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="协程我们在平常编程中，更习惯使用的是子例程(subroutine)，通俗的叫法是函数，或者过程。子例程，往往只有一个入口(函数调用，实参通过传给形参开始执行)，一个出口(函数return，执行完毕，或者引发异常，将控制权转移给调用者)。但协程是子例程基础上，一种更加宽泛定义的计算机程序模块(子例程可以看做协程的特例)，它可以有多个入口点，允许从一个入口点，执行到下一个入口点之前暂停，保存执行状态，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tornado2">
+<meta property="og:url" content="http://example.com/2020/11/22/Tornado2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="协程我们在平常编程中，更习惯使用的是子例程(subroutine)，通俗的叫法是函数，或者过程。子例程，往往只有一个入口(函数调用，实参通过传给形参开始执行)，一个出口(函数return，执行完毕，或者引发异常，将控制权转移给调用者)。但协程是子例程基础上，一种更加宽泛定义的计算机程序模块(子例程可以看做协程的特例)，它可以有多个入口点，允许从一个入口点，执行到下一个入口点之前暂停，保存执行状态，">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-22T14:13:49.000Z">
+<meta property="article:modified_time" content="2020-11-22T14:14:27.148Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Tornado2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/22/Tornado2/" class="article-date">
+  <time datetime="2020-11-22T14:13:49.000Z" itemprop="datePublished">2020-11-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Tornado2
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h2><p>我们在平常编程中，更习惯使用的是子例程(subroutine)，通俗的叫法是函数，或者过程。子例程，往往只有一个入口(函数调用，实参通过传给形参开始执行)，一个出口(函数return，执行完毕，或者引发异常，将控制权转移给调用者)。但协程是子例程基础上，一种更加宽泛定义的计算机程序模块(子例程可以看做协程的特例)，它可以有多个入口点，允许从一个入口点，执行到下一个入口点之前暂停，保存执行状态，等到合适的时机恢复执行状态，<br>从下一个入口点重新开始执行，这也是协程应该具有的能力。</p>
+<h3 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h3><p>生成器是一个含有yield表达式的函数，一个生成器永远是异步的，执行next方法会继续yield的下一步操作。<br>一个真正的协程能够控制代码什么时候继续执行。而一个Generator执行遇到一个yield表达式 或者语句，会将执行控制权转移给调用者，<br>可以实现一个顶级的调度子例程，将执行控制权转移回Generator，而ioLoop就是一个顶级的调度子例程。</p>
+<h3 id="Future类"><a href="#Future类" class="headerlink" title="Future类"></a>Future类</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Future类重要成员函数:</span><br><span class="line">	def done(self):</span><br><span class="line">		Future的_result成员是否被设置</span><br><span class="line">	def result(self, timeout&#x3D;None):</span><br><span class="line">		获取Future对象的结果</span><br><span class="line">	def add_done_callback(self, fn):</span><br><span class="line">		添加一个回调函数fn给Future对象。如果这个Future对象已经done，则直接执行fn，否则将fn加入到Future类的一个成员列表中保存。</span><br><span class="line">	def _set_done(self):</span><br><span class="line">		一个内部函数，主要是遍历列表，逐个调用列表中的callback函数，也就是前面add_done_calback加如来的。</span><br><span class="line">	def set_result(self, result):</span><br><span class="line">		给Future对象设置result，并且调用_set_done。也就是说，当Future对象获得result后，所有add_done_callback加入的回调函数就会执行。</span><br></pre></td></tr></table></figure>
+<p>Future对象实际是coroutine函数装饰器和IOLoop的沟通使者，有着非常重要的作用。    </p>
+<h3 id="IoLoop类"><a href="#IoLoop类" class="headerlink" title="IoLoop类"></a>IoLoop类</h3><p>在协程运行环境中担任着协程调度器的角色，一种事件循环，等待事件，然后运行对应的事件处理器(handler），<br>主要调度处理IO事件，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def add_future(self, future, callback):</span><br><span class="line">    assert is_future(future)</span><br><span class="line">    callback &#x3D; stack_context.wrap(callback)</span><br><span class="line">    future.add_done_callback(</span><br><span class="line">        lambda future: self.add_callback(callback, future))</span><br></pre></td></tr></table></figure>
+<p>当future对象被set_result，执行一个回调函数，lambda函数执行add_callback，将参数callback加入IoLoop的统一调度中，<br>让callback在下一次迭代中执行</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/22/Tornado2/" data-id="ckibka3970009pejx70o10v9r" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/11/23/Flask-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Flask(1)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/11/22/Tornado1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Tornado1</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-6/">Flask(6)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/26/Flask-5/">Flask(5)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
