@@ -64,6 +64,59 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Flask-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/23/Flask-2/" class="article-date">
+  <time datetime="2020-11-23T11:50:49.000Z" itemprop="datePublished">2020-11-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/23/Flask-2/">Flask(2)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Flask扩展"><a href="#Flask扩展" class="headerlink" title="Flask扩展"></a>Flask扩展</h1><h2 id="flask-bootstrap"><a href="#flask-bootstrap" class="headerlink" title="flask-bootstrap"></a>flask-bootstrap</h2><p>首先需要初始化<br><code>bootstrap = Bootstrap(app)</code><br>该扩展包的基模板已经把所有的css和js文件引入，因此，只需要在模板中导入<code>&#123; % extends &quot;bootstrap/base.html&quot; % &#125;</code>即可。<br>如果要向已有的内容块中添加新的东西，只需要使用<code>super（）</code>函数即可，例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123; % block scripts % &#125;</span><br><span class="line">&#123; &#123; super() &#125; &#125;</span><br><span class="line">	...</span><br><span class="line">&#123; % endblock % &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="自定义错误页面"><a href="#自定义错误页面" class="headerlink" title="自定义错误页面"></a>自定义错误页面</h3><p>例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@app.errorhandler(404)</span><br><span class="line">def page_not_found(e)：</span><br><span class="line">	return render_templates(&#39;404.html&#39;),404</span><br></pre></td></tr></table></figure>
+
+<h4 id="url-for-，可生成动态url"><a href="#url-for-，可生成动态url" class="headerlink" title="url_for()，可生成动态url"></a>url_for()，可生成动态url</h4><p>url_for(‘index’,_external=True)<br>为True生成绝对路径，反之则是相对路径。</p>
+<h5 id="定义收藏夹图标，就是标签页的小图标"><a href="#定义收藏夹图标，就是标签页的小图标" class="headerlink" title="定义收藏夹图标，就是标签页的小图标"></a>定义收藏夹图标，就是标签页的小图标</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123; % block head % &#125;                                                                                    &lt;!--图标定义在block head中--&gt;</span><br><span class="line">&#123; &#123; super() &#125; &#125;                                                                           &lt;!--继承bootstrap&#x2F;base.html的block head--&gt;</span><br><span class="line">&lt;link rel&#x3D;&quot;shortcut icon&quot; href&#x3D;&quot;&#123; &#123; url_for(&#39;static&#39;,filename &#x3D; &#39;log.ico&#39;) &#125; &#125;&quot; type&#x3D;&quot;image&#x2F;x-ico&quot;&gt;</span><br><span class="line">&lt;link rel&#x3D;&quot;icon&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;static&#39;,filename &#x3D; &#39;log.ico&#39;) &#125;&#125;&quot; type&#x3D;&quot;image&#x2F;x-ico&quot;&gt;</span><br><span class="line">&#123; % endblock % &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Flask-Moment-本地化日期和时间"><a href="#Flask-Moment-本地化日期和时间" class="headerlink" title="Flask-Moment 本地化日期和时间"></a>Flask-Moment 本地化日期和时间</h2><p>初始化<br><code>moment = Moment(app)</code><br>依赖于Moment.js 和jQuery.js 两个库，但bootstrap已经有jquery了 所以只需要引入moment就行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123; % block scripts % &#125;</span><br><span class="line">&#123; &#123; super() &#125; &#125;</span><br><span class="line">&#123; &#123; moment.include\_moment() &#125; &#125;</span><br><span class="line">&#123; % endblock % &#125;</span><br></pre></td></tr></table></figure>
+<p>可放在基模板的任意位置</p>
+<p>添加一个timedata变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;)</span><br><span class="line">def index():</span><br><span class="line">    return render_template(&#39;index.html&#39;,</span><br><span class="line">                           current_time&#x3D;datetime.utcnow())</span><br></pre></td></tr></table></figure>
+
+<p>渲染时间戳</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;p&gt;The local date and time is &#123; &#123; moment(current\_time).format(&#39;LLL&#39;) &#125; &#125;.&lt;&#x2F;p&gt; # format中的参数代表复杂度，只能1-4个L。</span><br><span class="line">&lt;p&gt;That was &#123; &#123; moment(current\_time).fromNow(refresh&#x3D;True) &#125; &#125;.&lt;&#x2F;p&gt;  # 自动刷新显示时间。xx minutes ago</span><br></pre></td></tr></table></figure>
+<p>显示中文</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123; % block scripts % &#125;</span><br><span class="line">&#123; &#123; super() &#125; &#125;</span><br><span class="line">&#123; &#123; moment.include\_moment() &#125; &#125;</span><br><span class="line">    &#123; &#123; moment.locale(&#39;zh-CN&#39;) &#125; &#125;</span><br><span class="line">&#123; % endblock % &#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/23/Flask-2/" data-id="ckibka38q0001pejx6uhr2hpn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Flask-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/11/23/Flask-1/" class="article-date">
@@ -304,6 +357,10 @@
       <ul>
         
           <li>
+            <a href="/2020/12/06/Flask-11/">Flask(11)</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/05/Flask-10/">Flask(10)</a>
           </li>
         
@@ -317,10 +374,6 @@
         
           <li>
             <a href="/2020/11/30/Flask-7/">Flask(7)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
           </li>
         
       </ul>

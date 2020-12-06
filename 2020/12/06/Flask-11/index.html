@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(11) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="博客文章提交和显示文章1234567891011class Post(db.Model):    __tablename__ &#x3D; &#39;posts&#39;    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)    body &#x3D; db.Column(db.Text)    timestamp &#x3D; db">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(11)">
+<meta property="og:url" content="http://example.com/2020/12/06/Flask-11/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="博客文章提交和显示文章1234567891011class Post(db.Model):    __tablename__ &#x3D; &#39;posts&#39;    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)    body &#x3D; db.Column(db.Text)    timestamp &#x3D; db">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-06T10:06:34.000Z">
+<meta property="article:modified_time" content="2020-12-06T10:07:51.130Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-11" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/06/Flask-11/" class="article-date">
+  <time datetime="2020-12-06T10:06:34.000Z" itemprop="datePublished">2020-12-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(11)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="博客文章"><a href="#博客文章" class="headerlink" title="博客文章"></a>博客文章</h1><h2 id="提交和显示文章"><a href="#提交和显示文章" class="headerlink" title="提交和显示文章"></a>提交和显示文章</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">class Post(db.Model):</span><br><span class="line">    __tablename__ &#x3D; &#39;posts&#39;</span><br><span class="line">    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)</span><br><span class="line">    body &#x3D; db.Column(db.Text)</span><br><span class="line">    timestamp &#x3D; db.Column(db.DateTime, index&#x3D;True, default&#x3D;datetime.utcnow)</span><br><span class="line">    author_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;users.id&#39;))</span><br><span class="line"></span><br><span class="line">class User(UserMixin, db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    posts &#x3D; db.relationship(&#39;Post&#39;, backref&#x3D;&#39;author&#39;, lazy&#x3D;&#39;dynamic&#39;) </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="relationship-amp-backref"><a href="#relationship-amp-backref" class="headerlink" title="relationship &amp; backref"></a>relationship &amp; backref</h4><p>通过db.relationship()，Role 模型有了一个可以获得对应角色所有用户的属性users。默认是列表形式，lazy=’dynamic’时返回的是一个 query 对象。即relationship提供了 Role 对 User 的访问。  </p>
+<p>而backref正好相反，提供了 User 对 Role 的访问。  </p>
+<p>不妨设一个 Role 实例为 user_role，一个 User 实例为 u.relationship 使 user_role.users 可以访问所有符合角色的用户，而 backref 使 u.role 可以获得用户对应的角色。</p>
+<h2 id="处理博客文章的首页路由"><a href="#处理博客文章的首页路由" class="headerlink" title="处理博客文章的首页路由"></a>处理博客文章的首页路由</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; PostForm()</span><br><span class="line">    # 需要有写的权限</span><br><span class="line">    if current_user.can(Permission.WRITE) and form.validate_on_submit():</span><br><span class="line">        post &#x3D; Post(body&#x3D;form.body.data,</span><br><span class="line">                    author&#x3D;current_user._get_current_object())</span><br><span class="line">        db.session.add(post)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        return redirect(url_for(&#39;.index&#39;))</span><br><span class="line">    # 获得一个posts列表用于遍历</span><br><span class="line">    posts &#x3D; Post.query.order_by(Post.timestamp.desc()).all()</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, posts&#x3D;posts)</span><br></pre></td></tr></table></figure>
+<p><strong>构建数据库时一定要先将Role中的数据传入，否则会导致创建用户时无法将各自的角色赋值</strong></p>
+<h2 id="分页显示长博客文章列表"><a href="#分页显示长博客文章列表" class="headerlink" title="分页显示长博客文章列表"></a>分页显示长博客文章列表</h2><h3 id="创建虚拟博客文章数据"><a href="#创建虚拟博客文章数据" class="headerlink" title="创建虚拟博客文章数据"></a>创建虚拟博客文章数据</h3><p><code>pip install faker</code><br>生成虚拟用户和博客文章</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">def users(count&#x3D;100):</span><br><span class="line">    fake &#x3D; Faker()</span><br><span class="line">    i &#x3D; 0</span><br><span class="line">    while i &lt; count:</span><br><span class="line">        u &#x3D; User(email&#x3D;fake.email(),</span><br><span class="line">                 username&#x3D;fake.user_name(),</span><br><span class="line">                 password&#x3D;&#39;password&#39;,</span><br><span class="line">                 confirmed&#x3D;True,</span><br><span class="line">                 name&#x3D;fake.name(),</span><br><span class="line">                 location&#x3D;fake.city(),</span><br><span class="line">                 about_me&#x3D;fake.text(),</span><br><span class="line">                 member_since&#x3D;fake.past_date())</span><br><span class="line">        db.session.add(u)</span><br><span class="line">        try:</span><br><span class="line">            db.session.commit()</span><br><span class="line">            i +&#x3D; 1</span><br><span class="line">        except IntegrityError:</span><br><span class="line">            db.session.rollback()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def posts(count&#x3D;100):</span><br><span class="line">    fake &#x3D; Faker()</span><br><span class="line">    user_count &#x3D; User.query.count()</span><br><span class="line">    for i in range(count):</span><br><span class="line">        u &#x3D; User.query.offset(randint(0, user_count - 1)).first()</span><br><span class="line">        p &#x3D; Post(body&#x3D;fake.text(),</span><br><span class="line">                 timestamp&#x3D;fake.past_date(),</span><br><span class="line">                 author&#x3D;u)</span><br><span class="line">        db.session.add(p)</span><br><span class="line">    db.session.commit()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="在页面中渲染数据"><a href="#在页面中渲染数据" class="headerlink" title="在页面中渲染数据"></a>在页面中渲染数据</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    # ...</span><br><span class="line">    page &#x3D; request.args.get(&#39;page&#39;, 1, type&#x3D;int)</span><br><span class="line">    pagination &#x3D; Post.query.order_by(Post.timestamp.desc()).paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_POSTS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    posts &#x3D; pagination.items</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, posts&#x3D;posts,</span><br><span class="line">                           pagination&#x3D;pagination)</span><br><span class="line"></span><br><span class="line">    调用Flask-SQLAlchemy提供的paginate()方法，page表示页数，per_page每页数量，没有指定默认20个</span><br></pre></td></tr></table></figure>
+<h3 id="添加分页导航"><a href="#添加分页导航" class="headerlink" title="添加分页导航"></a>添加分页导航</h3><p>paginate()方法返回值是一个Pagination类对象，该对象的属性如下：  </p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>items</td>
+<td>当前页面中的记录</td>
+</tr>
+<tr>
+<td>query</td>
+<td>分页的源查询</td>
+</tr>
+<tr>
+<td>page</td>
+<td>当前页数</td>
+</tr>
+<tr>
+<td>prev_num</td>
+<td>上一页的页数</td>
+</tr>
+<tr>
+<td>next_num</td>
+<td>下一页的页数</td>
+</tr>
+<tr>
+<td>has_next</td>
+<td>有下页返回True</td>
+</tr>
+<tr>
+<td>has_prev</td>
+<td>有上一页返回True</td>
+</tr>
+<tr>
+<td>pages</td>
+<td>查询得到的总页数</td>
+</tr>
+<tr>
+<td>per_page</td>
+<td>每页显示的记录数量</td>
+</tr>
+<tr>
+<td>total</td>
+<td>查询返回的记录总数</td>
+</tr>
+</tbody></table>
+<p>Flask-SQLAlchemy分页对象的方法：  </p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>iter_pages(left_edge=2,left_current=2.right_current=5,right_edge=2)</td>
+<td>一个迭代器，返回一个在分页导航中显示的页数列表。这个列表的最左边显示left_edge页，当前页的左边显示left_current页，当前页的右边显示right_current页，最右边显示right_edge页。</td>
+</tr>
+<tr>
+<td>prev()</td>
+<td>上一页的分页对象</td>
+</tr>
+<tr>
+<td>next()</td>
+<td>下一页的分页对象</td>
+</tr>
+</tbody></table>
+<p>iter_pages（）例子：在一个100页的列表中，当前页为50页，使用默认配置，这个方法会返回以下页数，1、2、None、48、49、50、51、52、53、54、55、None、99、100。  </p>
+<h4 id="在博客文章列表下面添加分页导航"><a href="#在博客文章列表下面添加分页导航" class="headerlink" title="在博客文章列表下面添加分页导航"></a>在博客文章列表下面添加分页导航</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &quot;base.html&quot; %&#125;</span><br><span class="line">&#123;% import &quot;bootstrap&#x2F;wtf.html&quot; as wtf %&#125;</span><br><span class="line">&#123;% import &quot;_macros.html&quot; as macros %&#125;</span><br><span class="line">...</span><br><span class="line">&#123;% include &#39;_posts.html&#39; %&#125;</span><br><span class="line">&#123;% if pagination %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;pagination&quot;&gt;</span><br><span class="line">    &#123;&#123; macros.pagination_widget(pagination, &#39;.index&#39;) &#125;&#125;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&#123;% endif %&#125;</span><br></pre></td></tr></table></figure>
+<p>__在url_for 反转时，接受一个endpoint或者函数名为参数(如果是endpoint，endpoint前面需要加个点)，返回对应的url地址__</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/06/Flask-11/" data-id="ckicyq0z80000l7jx0zkzbttq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/12/05/Flask-10/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flask(10)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/06/Flask-11/">Flask(11)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/05/Flask-10/">Flask(10)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/05/Flask-9/">Flask(9)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
