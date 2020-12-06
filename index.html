@@ -64,6 +64,89 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-解决migration版本冲突问题" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/" class="article-date">
+  <time datetime="2020-12-06T12:48:21.000Z" itemprop="datePublished">2020-12-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/">解决migration版本冲突问题</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="先获得两个head的id"><a href="#先获得两个head的id" class="headerlink" title="先获得两个head的id"></a>先获得两个head的id</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flask db heads</span><br><span class="line">e38935822969 (head)</span><br><span class="line">f55fde3d62b1 (head)</span><br></pre></td></tr></table></figure>
+<h3 id="然后合并"><a href="#然后合并" class="headerlink" title="然后合并"></a>然后合并</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">flask db merge e38935822969 f55fde3d62b1</span><br><span class="line">Generating &#x2F;vagrant&#x2F;migrations&#x2F;versions&#x2F;ecb671d1eb4b_.py … done</span><br></pre></td></tr></table></figure>
+<h3 id="更新到数据库"><a href="#更新到数据库" class="headerlink" title="更新到数据库"></a>更新到数据库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">flask db upgrade</span><br><span class="line">INFO [alembic.runtime.migration] Context impl PostgresqlImpl.</span><br><span class="line">INFO [alembic.runtime.migration] Will assume transactional DDL.</span><br><span class="line">INFO [alembic.runtime.migration] Running upgrade 00ea66754d06 -&gt; d84f976530e1, empty message</span><br><span class="line">INFO [alembic.runtime.migration] Running upgrade d84f976530e1 -&gt; 1b3e4f5f56bd, empty message</span><br><span class="line">INFO [alembic.runtime.migration] Running upgrade 1b3e4f5f56bd -&gt; e38935822969, empty message</span><br><span class="line">INFO [alembic.runtime.migration] Running upgrade e38935822969, f55fde3d62b1 -&gt; ecb671d1eb4b, empty message</span><br></pre></td></tr></table></figure>
+<h3 id="然后migrate和upgrade"><a href="#然后migrate和upgrade" class="headerlink" title="然后migrate和upgrade"></a>然后migrate和upgrade</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">flask db migrate</span><br><span class="line">flask db upgrade</span><br><span class="line">最后提交git</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/" data-id="ckid4h2ug00017mjx0og5ft62" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Flask-12" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/06/Flask-12/" class="article-date">
+  <time datetime="2020-12-06T12:47:16.000Z" itemprop="datePublished">2020-12-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/06/Flask-12/">Flask(12)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="使用Markdown和Flask-PageDown支持富文本文章"><a href="#使用Markdown和Flask-PageDown支持富文本文章" class="headerlink" title="使用Markdown和Flask-PageDown支持富文本文章"></a>使用Markdown和Flask-PageDown支持富文本文章</h2><h3 id="使用Flask-PageDown"><a href="#使用Flask-PageDown" class="headerlink" title="使用Flask-PageDown"></a>使用Flask-PageDown</h3><h4 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">from flask_pagedown import PageDown</span><br><span class="line"># ...</span><br><span class="line">pagedown &#x3D; PageDown()</span><br><span class="line"># ...</span><br><span class="line">def create_app(config_name):</span><br><span class="line">    # ...</span><br><span class="line">    pagedown.init_app(app)</span><br><span class="line">    # ...</span><br></pre></td></tr></table></figure>
+<h4 id="支持Markdown文章表单"><a href="#支持Markdown文章表单" class="headerlink" title="支持Markdown文章表单"></a>支持Markdown文章表单</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class PostForm(FlaskForm):</span><br><span class="line">    body &#x3D; PageDownField(&quot;What&#39;s on your mind?&quot;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br><span class="line"></span><br><span class="line">    将WTForms中的TextAreaField替换成PageDownField，具有预览功能</span><br></pre></td></tr></table></figure>
+<h4 id="Flask-PageDown模板声明"><a href="#Flask-PageDown模板声明" class="headerlink" title="Flask-PageDown模板声明"></a>Flask-PageDown模板声明</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">将相关文件添加到模板中，输入的Markdown格式文本会被立即渲染成HTML</span><br><span class="line">&#123;% block scripts %&#125;</span><br><span class="line">&#123;&#123; super() &#125;&#125;</span><br><span class="line">&#123;&#123; pagedown.include_pagedown() &#125;&#125;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="在服务器端处理富文本"><a href="#在服务器端处理富文本" class="headerlink" title="在服务器端处理富文本"></a>在服务器端处理富文本</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">如果Markdown文本直接与表单一起生成HTML有风险，别人可以直接修改HTML，导致HTML与Markdown源文件。安全起见，应该直接提交Markdown源文件，在服务器上转换成HTML,再使用Bleach进行清理，但是速度太慢了，因此可以把结果缓存在数据库中。</span><br><span class="line">class Post(db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    body_html &#x3D; db.Column(db.Text)</span><br><span class="line">    # ...</span><br><span class="line">    @staticmethod</span><br><span class="line">    def on_changed_body(target, value, oldvalue, initiator):</span><br><span class="line">        allowed_tags &#x3D; [&#39;a&#39;, &#39;abbr&#39;, &#39;acronym&#39;, &#39;b&#39;, &#39;blockquote&#39;, &#39;code&#39;,</span><br><span class="line">                        &#39;em&#39;, &#39;i&#39;, &#39;li&#39;, &#39;ol&#39;, &#39;pre&#39;, &#39;strong&#39;, &#39;ul&#39;,</span><br><span class="line">                        &#39;h1&#39;, &#39;h2&#39;, &#39;h3&#39;, &#39;p&#39;]</span><br><span class="line">        target.body_html &#x3D; bleach.linkify(bleach.clean(</span><br><span class="line">            markdown(value, output_format&#x3D;&#39;html&#39;),</span><br><span class="line">            tags&#x3D;allowed_tags, strip&#x3D;True))</span><br><span class="line"></span><br><span class="line"># on_changed_body()函数注册在body字段上，是SQLAlchemy“set”事件的监听程序，这意味着只要body字段设了新值，这个函数就会自动被调用。</span><br><span class="line">db.event.listen(Post.body, &#39;set&#39;, Post.on_changed_body)</span><br><span class="line"></span><br><span class="line">真正的转换过程分3步。首先，markdown（）函数初步把Markdown文本转换成HTML。然后，把得到的结果和允许使用的HTML标签列表传给clean（）函数。clean（）函数删除所有不在白名单中的标签。最后由linkify（）函数，把纯文本中的URL转换成合适的&lt;a&gt;链接。Markdown规范没有为自动生成链接提供官方支持。</span><br></pre></td></tr></table></figure>
+
+<h3 id="在模板中使用文章内容的HTML格式"><a href="#在模板中使用文章内容的HTML格式" class="headerlink" title="在模板中使用文章内容的HTML格式"></a>在模板中使用文章内容的HTML格式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">shift+tab反向缩进</span><br><span class="line">...</span><br><span class="line">&lt;div class&#x3D;&quot;post-body&quot;&gt;</span><br><span class="line">    &#123;% if post.body_html %&#125;</span><br><span class="line">        &#123;&#123; post.body_html | safe &#125;&#125; # 不会转义HTML元素</span><br><span class="line">    &#123;% else %&#125;</span><br><span class="line">        &#123;&#123; post.body &#125;&#125;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/06/Flask-12/" data-id="ckid4h2ub00007mjxeymiegx0" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Flask-11" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/12/06/Flask-11/" class="article-date">
@@ -594,321 +677,6 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
 
 
   
-    <article id="post-Flask-4" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/23/Flask-4/" class="article-date">
-  <time datetime="2020-11-23T14:33:40.000Z" itemprop="datePublished">2020-11-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/23/Flask-4/">Flask(4)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="flask-sqlalchemy"><a href="#flask-sqlalchemy" class="headerlink" title="flask-sqlalchemy"></a>flask-sqlalchemy</h2><table>
-<thead>
-<tr>
-<th>数据库引擎</th>
-<th>URL</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>mysql</td>
-<td>mysql+pymysql://username:password@hostname/database</td>
-</tr>
-<tr>
-<td>Postgres</td>
-<td>postgresql://username:password@hostname/database</td>
-</tr>
-<tr>
-<td>sqlite(linux,macOS)</td>
-<td>sqlite:////absolute/path/to/database</td>
-</tr>
-<tr>
-<td>sqlite(Windows)</td>
-<td>sqlite:///c:/absolute/path/to/database</td>
-</tr>
-</tbody></table>
-<p>应用使用的数据库URL必须保存到Flask配置对象的SQLALCHEMY_DATABASE_URI中，例如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">app.config[&#39;SQLALCHEMY_DATABASE_URI&#39;] &#x3D;\</span><br><span class="line">    &#39;sqlite:&#x2F;&#x2F;&#x2F;&#39; + os.path.join(basedir, &#39;data.sqlite&#39;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="定义模型"><a href="#定义模型" class="headerlink" title="定义模型"></a>定义模型</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class Role(db.Model):</span><br><span class="line">    __tablename__ &#x3D; &#39;roles&#39;</span><br><span class="line">    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)</span><br><span class="line">    name &#x3D; db.Column(db.String(64), unique&#x3D;True)</span><br><span class="line">    users &#x3D; db.relationship(&#39;User&#39;, backref&#x3D;&#39;role&#39;)</span><br><span class="line"></span><br><span class="line">    def __repr__(self):</span><br><span class="line">        return &#39;&lt;Role %r&gt;&#39; % self.name  # 当输出实例对象时，实际上输出的是对象上__repr__方法的返回值</span><br></pre></td></tr></table></figure>
-
-<p><strong>注意：Flask-SQLAlchemy要求每个模型都要定义主键！</strong></p>
-<h3 id="关系"><a href="#关系" class="headerlink" title="关系"></a>关系</h3><p>一对多关系的表示方法：多的一方建立外键指向一的一方的主键。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">class Role(db.Model):</span><br><span class="line">	# ...</span><br><span class="line">	users &#x3D; db.relationship(&#39;User&#39;, backref&#x3D;&#39;role&#39;) # 返回与角色相关联的用户组成的列表，第一个参数表示相关联的是哪一个模型，backref参数</span><br><span class="line">向User模型中添加一个role属性，定义反向关系。</span><br><span class="line"></span><br><span class="line">class User(db.Model):</span><br><span class="line">	# ...</span><br><span class="line">	role_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;roles.id&#39;)) # 创建一列role_id对应roles表中的id</span><br></pre></td></tr></table></figure>
-
-<h3 id="数据库操作"><a href="#数据库操作" class="headerlink" title="数据库操作"></a>数据库操作</h3><h4 id="创建表"><a href="#创建表" class="headerlink" title="创建表"></a>创建表</h4><p>db.create_all() #寻找所有db.Model子类，并在数据库中创建对应的表，如果已经存在，使用后不会更新或者重新创建，需要删除后再创建才能更新。  </p>
-<p>db.drop_all() #删除所有表</p>
-<h4 id="插入行"><a href="#插入行" class="headerlink" title="插入行"></a>插入行</h4><p><code>admin_role = Role(name=&#39;Admin&#39;)</code>  # 添加到会话当中  </p>
-<p><code>db.session.add(admin_role)  # 这个就是事务</code></p>
-<p><code>db.session.commit()</code> # 提交到数据库中</p>
-<p><code>db.session.rollback()</code>    # 数据回滚  </p>
-<h4 id="修改行"><a href="#修改行" class="headerlink" title="修改行"></a>修改行</h4><p>admin_role.name = ‘Administrator’  </p>
-<p>db.session.add(admin_role)  </p>
-<p>db.session.commit()  </p>
-<h4 id="删除行"><a href="#删除行" class="headerlink" title="删除行"></a>删除行</h4><p>db.session.delete(mod_role)  </p>
-<p>db.session.commit()</p>
-<h4 id="查询行"><a href="#查询行" class="headerlink" title="查询行"></a>查询行</h4><p><code>Role.query.all() # 查询所有</code>  </p>
-<p><code>User.query.filter_by(role=user_role).all() # 使用过滤器 </code>  </p>
-<p><code>john = User.query.filter_by(username=&#39;john&#39;).first() #将一条查询结果封装成python对象  </code></p>
-<h3 id="常用的SQLAlchemy查询过滤器"><a href="#常用的SQLAlchemy查询过滤器" class="headerlink" title="常用的SQLAlchemy查询过滤器"></a>常用的SQLAlchemy查询过滤器</h3><table>
-<thead>
-<tr>
-<th>过滤器</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>filter()</td>
-<td>把过滤器添加到原查询上，返回一个新查询</td>
-</tr>
-<tr>
-<td>filter_by()</td>
-<td>把等值过滤器添加到原查询上，返回一个新查询</td>
-</tr>
-<tr>
-<td>limit</td>
-<td>使用指定的值限定原查询返回的结果</td>
-</tr>
-<tr>
-<td>offset()</td>
-<td>偏移原查询返回的结果，返回一个新查询</td>
-</tr>
-<tr>
-<td>order_by()</td>
-<td>根据指定条件对原查询结果进行排序，返回一个新查询</td>
-</tr>
-<tr>
-<td>group_by()</td>
-<td>根据指定条件对原查询结果进行分组，返回一个新查询</td>
-</tr>
-</tbody></table>
-<h3 id="常用的SQLAlchemy查询执行器"><a href="#常用的SQLAlchemy查询执行器" class="headerlink" title="常用的SQLAlchemy查询执行器"></a>常用的SQLAlchemy查询执行器</h3><table>
-<thead>
-<tr>
-<th>方法</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>all()</td>
-<td>以列表形式返回查询的所有结果</td>
-</tr>
-<tr>
-<td>first()</td>
-<td>返回查询的第一个结果，如果未查到，返回None</td>
-</tr>
-<tr>
-<td>first_or_404()</td>
-<td>返回查询的第一个结果，如果未查到，返回404</td>
-</tr>
-<tr>
-<td>get()</td>
-<td>返回指定主键对应的行，如不存在，返回None</td>
-</tr>
-<tr>
-<td>get_or_404()</td>
-<td>返回指定主键对应的行，如不存在，返回404</td>
-</tr>
-<tr>
-<td>count()</td>
-<td>返回查询结果的数量</td>
-</tr>
-<tr>
-<td>paginate()</td>
-<td>返回一个Paginate对象，它包含指定范围内的结果</td>
-</tr>
-</tbody></table>
-<h3 id="在视图函数中操作数据库"><a href="#在视图函数中操作数据库" class="headerlink" title="在视图函数中操作数据库"></a>在视图函数中操作数据库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; NameForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User.query.filter_by(username&#x3D;form.name.data).first()</span><br><span class="line">        if user is None:</span><br><span class="line">            user &#x3D; User(username&#x3D;form.name.data)</span><br><span class="line">            db.session.add(user)</span><br><span class="line">            db.session.commit()</span><br><span class="line">            session[&#39;known&#39;] &#x3D; False</span><br><span class="line">        else:</span><br><span class="line">            session[&#39;known&#39;] &#x3D; True</span><br><span class="line">        session[&#39;name&#39;] &#x3D; form.name.data</span><br><span class="line">        return redirect(url_for(&#39;index&#39;))</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, name&#x3D;session.get(&#39;name&#39;),</span><br><span class="line">                           known&#x3D;session.get(&#39;known&#39;, False))</span><br></pre></td></tr></table></figure>
-
-<h3 id="集成Python-shell"><a href="#集成Python-shell" class="headerlink" title="集成Python shell"></a>集成Python shell</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@app.shell_context_processor # 用处：创建并注册一个shell上下文处理器</span><br><span class="line">def make_shell_context():</span><br><span class="line">    return dict(db&#x3D;db, User&#x3D;User, Role&#x3D;Role)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p><strong>将上面三个以字典的形式放到上下文变量上，以后就不用导入了。</strong></p>
-<h3 id="flask-migrate-数据库迁移"><a href="#flask-migrate-数据库迁移" class="headerlink" title="flask-migrate 数据库迁移"></a>flask-migrate 数据库迁移</h3><p>用来更新表，解决flask-sqlalchemy，更新表的问题</p>
-<h4 id="创建迁移仓库"><a href="#创建迁移仓库" class="headerlink" title="创建迁移仓库"></a>创建迁移仓库</h4><p>需要初始化  </p>
-<p><code>migrate = Migrate(app,db)</code></p>
-<p>在命令行中输入<code>flask db init</code>  </p>
-<p>会创建migrations目录，所有迁移脚本都存放在这。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/23/Flask-4/" data-id="ckibka38x0003pejx2z9x7mh2" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Flask-3" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/23/Flask-3/" class="article-date">
-  <time datetime="2020-11-23T11:56:23.000Z" itemprop="datePublished">2020-11-23</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/23/Flask-3/">Flask(3)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="flask-wtf-web表单"><a href="#flask-wtf-web表单" class="headerlink" title="flask-wtf web表单"></a>flask-wtf web表单</h2><p>要先配置 SECRET_KEY 密钥，为所有表单生成安全令牌，可以防止CSRF攻击</p>
-<h3 id="表单类"><a href="#表单类" class="headerlink" title="表单类"></a>表单类</h3><p>定义：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">class NameForm(FlaskForm):</span><br><span class="line">    name &#x3D; StringField(&#39;What is your name?&#39;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="WTForms支持的HTML标准字段"><a href="#WTForms支持的HTML标准字段" class="headerlink" title="WTForms支持的HTML标准字段"></a>WTForms支持的HTML标准字段</h3><table>
-<thead>
-<tr>
-<th>字段对象</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>StringField</td>
-<td>文本字段</td>
-</tr>
-<tr>
-<td>TextAreaField</td>
-<td>多行文本字段</td>
-</tr>
-<tr>
-<td>PasswordField</td>
-<td>密码文本字段</td>
-</tr>
-<tr>
-<td>HiddenField</td>
-<td>隐藏文件字段</td>
-</tr>
-<tr>
-<td>DateField</td>
-<td>文本字段，值为 datetime.date 文本格式</td>
-</tr>
-<tr>
-<td>DateTimeField</td>
-<td>文本字段，值为 datetime.datetime 文本格式</td>
-</tr>
-<tr>
-<td>IntegerField</td>
-<td>文本字段，值为整数</td>
-</tr>
-<tr>
-<td>DecimalField</td>
-<td>文本字段，值为decimal.Decimal</td>
-</tr>
-<tr>
-<td>FloatField</td>
-<td>文本字段，值为浮点数</td>
-</tr>
-<tr>
-<td>BooleanField</td>
-<td>复选框，值为True 和 False</td>
-</tr>
-<tr>
-<td>RadioField</td>
-<td>一组单选框</td>
-</tr>
-<tr>
-<td>SelectField</td>
-<td>下拉列表</td>
-</tr>
-<tr>
-<td>SelectMutipleField</td>
-<td>下拉列表，可选择多个值</td>
-</tr>
-<tr>
-<td>FileField</td>
-<td>文件上传字段</td>
-</tr>
-<tr>
-<td>SubmitField</td>
-<td>表单提交按钮</td>
-</tr>
-<tr>
-<td>FormField</td>
-<td>把表单作为字段嵌入另一个表单</td>
-</tr>
-<tr>
-<td>FieldList</td>
-<td>一组指定类型的字段</td>
-</tr>
-</tbody></table>
-<h3 id="WTForms验证函数"><a href="#WTForms验证函数" class="headerlink" title="WTForms验证函数"></a>WTForms验证函数</h3><table>
-<thead>
-<tr>
-<th>验证函数</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>DataRequired</td>
-<td>确保字段中有数据</td>
-</tr>
-<tr>
-<td>EqualTo</td>
-<td>比较两个字段的值，常用于比较两次密码输入</td>
-</tr>
-<tr>
-<td>Length</td>
-<td>验证输入的字符串长度</td>
-</tr>
-<tr>
-<td>NumberRange</td>
-<td>验证输入的值在数字范围内</td>
-</tr>
-<tr>
-<td>URL</td>
-<td>验证URL</td>
-</tr>
-<tr>
-<td>AnyOf</td>
-<td>验证输入值在可选列表中</td>
-</tr>
-<tr>
-<td>NoneOf</td>
-<td>验证输入值不在可选列表中</td>
-</tr>
-</tbody></table>
-<h4 id="快速渲染表单："><a href="#快速渲染表单：" class="headerlink" title="快速渲染表单："></a>快速渲染表单：</h4><p>{ % import “bootstrap/wtf.html” as wtf % }<br>{ { wtf.quick_form(form) } }</p>
-<h3 id="重定向与用户会话"><a href="#重定向与用户会话" class="headerlink" title="重定向与用户会话"></a>重定向与用户会话</h3><p>提交post请求后，一旦请求消失，则数据也会跟着消失，因此使用上下文变量session来保存请求之间的数据。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; NameForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        session[&#39;name&#39;] &#x3D; form.name.data</span><br><span class="line">        return redirect(url_for(&#39;index&#39;))</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, name&#x3D;session.get(&#39;name&#39;))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/23/Flask-3/" data-id="ckibka38u0002pejx3qq2bxq9" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -945,6 +713,14 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
       <ul>
         
           <li>
+            <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/">解决migration版本冲突问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/06/Flask-12/">Flask(12)</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/06/Flask-11/">Flask(11)</a>
           </li>
         
@@ -954,14 +730,6 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
         
           <li>
             <a href="/2020/12/05/Flask-9/">Flask(9)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/04/Flask-8/">Flask(8)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/11/30/Flask-7/">Flask(7)</a>
           </li>
         
       </ul>
