@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Flask(14) | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="用户评论评论在数据库中的表示Comment模型 123456789101112131415161718class Comment(db.Model):    __tablename__ &#x3D; &#39;comments&#39;    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)    body &#x3D; db.Colum">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask(14)">
+<meta property="og:url" content="http://example.com/2020/12/10/Flask-14/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="用户评论评论在数据库中的表示Comment模型 123456789101112131415161718class Comment(db.Model):    __tablename__ &#x3D; &#39;comments&#39;    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)    body &#x3D; db.Colum">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-10T08:38:05.000Z">
+<meta property="article:modified_time" content="2020-12-10T08:38:28.662Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Flask-14" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/10/Flask-14/" class="article-date">
+  <time datetime="2020-12-10T08:38:05.000Z" itemprop="datePublished">2020-12-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flask(14)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="用户评论"><a href="#用户评论" class="headerlink" title="用户评论"></a>用户评论</h1><h2 id="评论在数据库中的表示"><a href="#评论在数据库中的表示" class="headerlink" title="评论在数据库中的表示"></a>评论在数据库中的表示</h2><p>Comment模型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">class Comment(db.Model):</span><br><span class="line">    __tablename__ &#x3D; &#39;comments&#39;</span><br><span class="line">    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)</span><br><span class="line">    body &#x3D; db.Column(db.Text)</span><br><span class="line">    body_html &#x3D; db.Column(db.Text)</span><br><span class="line">    timestamp &#x3D; db.Column(db.DateTime, index&#x3D;True, default&#x3D;datetime.utcnow)</span><br><span class="line">    # 该属性用来查禁评论用的。</span><br><span class="line">    disabled &#x3D; db.Column(db.Boolean)</span><br><span class="line">    author_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;users.id&#39;))</span><br><span class="line">    post_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;posts.id&#39;))</span><br><span class="line"></span><br><span class="line">    @staticmethod</span><br><span class="line">    def on_changed_body(target, value, oldvalue, initiator):</span><br><span class="line">        allowed_tags &#x3D; [&#39;a&#39;, &#39;abbr&#39;, &#39;acronym&#39;, &#39;b&#39;, &#39;code&#39;, &#39;em&#39;, &#39;i&#39;,</span><br><span class="line">                        &#39;strong&#39;]</span><br><span class="line">        target.body_html &#x3D; bleach.linkify(bleach.clean(</span><br><span class="line">            markdown(value, output_format&#x3D;&#39;html&#39;),</span><br><span class="line">            tags&#x3D;allowed_tags, strip&#x3D;True))</span><br></pre></td></tr></table></figure>
+<p>users和posts表与comments表的一对多关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class User(UserMixin, db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    comments &#x3D; db.relationship(&#39;Comment&#39;, backref&#x3D;&#39;author&#39;, lazy&#x3D;&#39;dynamic&#39;)</span><br><span class="line">class Post(db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    comments &#x3D; db.relationship(&#39;Comment&#39;, backref&#x3D;&#39;post&#39;, lazy&#x3D;&#39;dynamic&#39;)</span><br><span class="line">     lazy&#x3D;&#39;dynamic&#39; 返回一个查询对象</span><br></pre></td></tr></table></figure>
+<h2 id="提交和显示评论"><a href="#提交和显示评论" class="headerlink" title="提交和显示评论"></a>提交和显示评论</h2><p>评论表单</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class CommentForm(FlaskForm):</span><br><span class="line">    body &#x3D; StringField(&#39;Enter your comment&#39;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br></pre></td></tr></table></figure>
+<p>支持博客文章评论</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;post&#x2F;&lt;int:id&gt;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def post(id):</span><br><span class="line">    post &#x3D; Post.query.get_or_404(id)</span><br><span class="line">    form &#x3D; CommentForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        comment &#x3D; Comment(body&#x3D;form.body.data,</span><br><span class="line">                          post&#x3D;post,</span><br><span class="line">                          author&#x3D;current_user._get_current_object())</span><br><span class="line">                          # 传值的时候不能使用代理上下文变量，要传入真实值</span><br><span class="line">        db.session.add(comment)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;Your comment has been published.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.post&#39;, id&#x3D;post.id, page&#x3D;-1))</span><br><span class="line">    page &#x3D; request.args.get(&#39;page&#39;, 1, type&#x3D;int)</span><br><span class="line">    if page &#x3D;&#x3D; -1:</span><br><span class="line">        page &#x3D; (post.comments.count() - 1) &#x2F;&#x2F; \</span><br><span class="line">            current_app.config[&#39;FLASKY_COMMENTS_PER_PAGE&#39;] + 1</span><br><span class="line">    pagination &#x3D; post.comments.order_by(Comment.timestamp.asc()).paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_COMMENTS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    comments &#x3D; pagination.items</span><br><span class="line">    return render_template(&#39;post.html&#39;, posts&#x3D;[post], form&#x3D;form,</span><br><span class="line">                           comments&#x3D;comments, pagination&#x3D;pagination)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="管理评论"><a href="#管理评论" class="headerlink" title="管理评论"></a>管理评论</h2><p>管理评论路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;moderate&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.MODERATE)</span><br><span class="line">def moderate():</span><br><span class="line">    page &#x3D; request.args.get(&#39;page&#39;, 1, type&#x3D;int)</span><br><span class="line">    pagination &#x3D; Comment.query.order_by(Comment.timestamp.desc()).paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_COMMENTS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    comments &#x3D; pagination.items</span><br><span class="line">    return render_template(&#39;moderate.html&#39;, comments&#x3D;comments,</span><br><span class="line">                           pagination&#x3D;pagination, page&#x3D;page)</span><br></pre></td></tr></table></figure>
+<p>评论管理页面的模板</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &quot;base.html&quot; %&#125;</span><br><span class="line">&#123;% import &quot;_macros.html&quot; as macros %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block title %&#125;Flasky - Comment Moderation&#123;% endblock %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block page_content %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;page-header&quot;&gt;</span><br><span class="line">    &lt;h1&gt;Comment Moderation&lt;&#x2F;h1&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line"># set可用于定义变量</span><br><span class="line">&#123;% set moderate &#x3D; True %&#125;</span><br><span class="line">&#123;% include &#39;_comments.html&#39; %&#125;</span><br><span class="line">&#123;% if pagination %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;pagination&quot;&gt;</span><br><span class="line">    &#123;&#123; macros.pagination_widget(pagination, &#39;.moderate&#39;) &#125;&#125;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&#123;% endif %&#125;</span><br><span class="line">&#123;% endblock %&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>渲染评论的正文</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&lt;div class&#x3D;&quot;comment-body&quot;&gt;</span><br><span class="line">                &#123;% if comment.disabled %&#125;</span><br><span class="line">                &lt;p&gt;&lt;i&gt;This comment has been disabled by a moderator.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;</span><br><span class="line">                &#123;% endif %&#125;</span><br><span class="line">                # 上面set设置的值 可在这里使用</span><br><span class="line">                &#123;% if moderate or not comment.disabled %&#125;</span><br><span class="line">                    &#123;% if comment.body_html %&#125;</span><br><span class="line">                        &#123;&#123; comment.body_html | safe &#125;&#125;</span><br><span class="line">                    &#123;% else %&#125;</span><br><span class="line">                        &#123;&#123; comment.body &#125;&#125;</span><br><span class="line">                    &#123;% endif %&#125;</span><br><span class="line">                &#123;% endif %&#125;</span><br><span class="line">            &lt;&#x2F;div&gt;</span><br><span class="line">            &#123;% if moderate %&#125;</span><br><span class="line">                &lt;br&gt;</span><br><span class="line">                &#123;% if comment.disabled %&#125;</span><br><span class="line">                &lt;a class&#x3D;&quot;btn btn-default btn-xs&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.moderate_enable&#39;, id&#x3D;comment.id, page&#x3D;page) &#125;&#125;&quot;&gt;Enable&lt;&#x2F;a&gt;</span><br><span class="line">                &#123;% else %&#125;</span><br><span class="line">                &lt;a class&#x3D;&quot;btn btn-danger btn-xs&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.moderate_disable&#39;, id&#x3D;comment.id, page&#x3D;page) &#125;&#125;&quot;&gt;Disable&lt;&#x2F;a&gt;</span><br><span class="line">                &#123;% endif %&#125;</span><br><span class="line">            &#123;% endif %&#125;</span><br><span class="line">            ...</span><br></pre></td></tr></table></figure>
+<p>评论管理路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;moderate&#x2F;enable&#x2F;&lt;int:id&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.MODERATE)</span><br><span class="line">def moderate_enable(id):</span><br><span class="line">    comment &#x3D; Comment.query.get_or_404(id)</span><br><span class="line">    comment.disabled &#x3D; False</span><br><span class="line">    db.session.add(comment)</span><br><span class="line">    db.session.commit()</span><br><span class="line">    return redirect(url_for(&#39;.moderate&#39;,</span><br><span class="line">                            page&#x3D;request.args.get(&#39;page&#39;, 1, type&#x3D;int)))</span><br><span class="line"></span><br><span class="line">@main.route(&#39;&#x2F;moderate&#x2F;disable&#x2F;&lt;int:id&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.MODERATE)</span><br><span class="line">def moderate_disable(id):</span><br><span class="line">    comment &#x3D; Comment.query.get_or_404(id)</span><br><span class="line">    comment.disabled &#x3D; True</span><br><span class="line">    db.session.add(comment)</span><br><span class="line">    db.session.commit()</span><br><span class="line">    return redirect(url_for(&#39;.moderate&#39;,</span><br><span class="line">                            page&#x3D;request.args.get(&#39;page&#39;, 1, type&#x3D;int)))</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/10/Flask-14/" data-id="ckiiladn40001lzjxa01m9pxp" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/12/10/Flask-13/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Flask(13)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/10/Flask-14/">Flask(14)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/10/Flask-13/">Flask(13)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/">解决migration版本冲突问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/06/Flask-12/">Flask(12)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/06/Flask-11/">Flask(11)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

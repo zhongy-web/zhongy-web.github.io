@@ -64,6 +64,129 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Flask-14" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/10/Flask-14/" class="article-date">
+  <time datetime="2020-12-10T08:38:05.000Z" itemprop="datePublished">2020-12-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/10/Flask-14/">Flask(14)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="用户评论"><a href="#用户评论" class="headerlink" title="用户评论"></a>用户评论</h1><h2 id="评论在数据库中的表示"><a href="#评论在数据库中的表示" class="headerlink" title="评论在数据库中的表示"></a>评论在数据库中的表示</h2><p>Comment模型</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">class Comment(db.Model):</span><br><span class="line">    __tablename__ &#x3D; &#39;comments&#39;</span><br><span class="line">    id &#x3D; db.Column(db.Integer, primary_key&#x3D;True)</span><br><span class="line">    body &#x3D; db.Column(db.Text)</span><br><span class="line">    body_html &#x3D; db.Column(db.Text)</span><br><span class="line">    timestamp &#x3D; db.Column(db.DateTime, index&#x3D;True, default&#x3D;datetime.utcnow)</span><br><span class="line">    # 该属性用来查禁评论用的。</span><br><span class="line">    disabled &#x3D; db.Column(db.Boolean)</span><br><span class="line">    author_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;users.id&#39;))</span><br><span class="line">    post_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;posts.id&#39;))</span><br><span class="line"></span><br><span class="line">    @staticmethod</span><br><span class="line">    def on_changed_body(target, value, oldvalue, initiator):</span><br><span class="line">        allowed_tags &#x3D; [&#39;a&#39;, &#39;abbr&#39;, &#39;acronym&#39;, &#39;b&#39;, &#39;code&#39;, &#39;em&#39;, &#39;i&#39;,</span><br><span class="line">                        &#39;strong&#39;]</span><br><span class="line">        target.body_html &#x3D; bleach.linkify(bleach.clean(</span><br><span class="line">            markdown(value, output_format&#x3D;&#39;html&#39;),</span><br><span class="line">            tags&#x3D;allowed_tags, strip&#x3D;True))</span><br></pre></td></tr></table></figure>
+<p>users和posts表与comments表的一对多关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class User(UserMixin, db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    comments &#x3D; db.relationship(&#39;Comment&#39;, backref&#x3D;&#39;author&#39;, lazy&#x3D;&#39;dynamic&#39;)</span><br><span class="line">class Post(db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    comments &#x3D; db.relationship(&#39;Comment&#39;, backref&#x3D;&#39;post&#39;, lazy&#x3D;&#39;dynamic&#39;)</span><br><span class="line">     lazy&#x3D;&#39;dynamic&#39; 返回一个查询对象</span><br></pre></td></tr></table></figure>
+<h2 id="提交和显示评论"><a href="#提交和显示评论" class="headerlink" title="提交和显示评论"></a>提交和显示评论</h2><p>评论表单</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class CommentForm(FlaskForm):</span><br><span class="line">    body &#x3D; StringField(&#39;Enter your comment&#39;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Submit&#39;)</span><br></pre></td></tr></table></figure>
+<p>支持博客文章评论</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;post&#x2F;&lt;int:id&gt;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def post(id):</span><br><span class="line">    post &#x3D; Post.query.get_or_404(id)</span><br><span class="line">    form &#x3D; CommentForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        comment &#x3D; Comment(body&#x3D;form.body.data,</span><br><span class="line">                          post&#x3D;post,</span><br><span class="line">                          author&#x3D;current_user._get_current_object())</span><br><span class="line">                          # 传值的时候不能使用代理上下文变量，要传入真实值</span><br><span class="line">        db.session.add(comment)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;Your comment has been published.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.post&#39;, id&#x3D;post.id, page&#x3D;-1))</span><br><span class="line">    page &#x3D; request.args.get(&#39;page&#39;, 1, type&#x3D;int)</span><br><span class="line">    if page &#x3D;&#x3D; -1:</span><br><span class="line">        page &#x3D; (post.comments.count() - 1) &#x2F;&#x2F; \</span><br><span class="line">            current_app.config[&#39;FLASKY_COMMENTS_PER_PAGE&#39;] + 1</span><br><span class="line">    pagination &#x3D; post.comments.order_by(Comment.timestamp.asc()).paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_COMMENTS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    comments &#x3D; pagination.items</span><br><span class="line">    return render_template(&#39;post.html&#39;, posts&#x3D;[post], form&#x3D;form,</span><br><span class="line">                           comments&#x3D;comments, pagination&#x3D;pagination)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="管理评论"><a href="#管理评论" class="headerlink" title="管理评论"></a>管理评论</h2><p>管理评论路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;moderate&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.MODERATE)</span><br><span class="line">def moderate():</span><br><span class="line">    page &#x3D; request.args.get(&#39;page&#39;, 1, type&#x3D;int)</span><br><span class="line">    pagination &#x3D; Comment.query.order_by(Comment.timestamp.desc()).paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_COMMENTS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    comments &#x3D; pagination.items</span><br><span class="line">    return render_template(&#39;moderate.html&#39;, comments&#x3D;comments,</span><br><span class="line">                           pagination&#x3D;pagination, page&#x3D;page)</span><br></pre></td></tr></table></figure>
+<p>评论管理页面的模板</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;% extends &quot;base.html&quot; %&#125;</span><br><span class="line">&#123;% import &quot;_macros.html&quot; as macros %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block title %&#125;Flasky - Comment Moderation&#123;% endblock %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block page_content %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;page-header&quot;&gt;</span><br><span class="line">    &lt;h1&gt;Comment Moderation&lt;&#x2F;h1&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line"># set可用于定义变量</span><br><span class="line">&#123;% set moderate &#x3D; True %&#125;</span><br><span class="line">&#123;% include &#39;_comments.html&#39; %&#125;</span><br><span class="line">&#123;% if pagination %&#125;</span><br><span class="line">&lt;div class&#x3D;&quot;pagination&quot;&gt;</span><br><span class="line">    &#123;&#123; macros.pagination_widget(pagination, &#39;.moderate&#39;) &#125;&#125;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">&#123;% endif %&#125;</span><br><span class="line">&#123;% endblock %&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>渲染评论的正文</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&lt;div class&#x3D;&quot;comment-body&quot;&gt;</span><br><span class="line">                &#123;% if comment.disabled %&#125;</span><br><span class="line">                &lt;p&gt;&lt;i&gt;This comment has been disabled by a moderator.&lt;&#x2F;i&gt;&lt;&#x2F;p&gt;</span><br><span class="line">                &#123;% endif %&#125;</span><br><span class="line">                # 上面set设置的值 可在这里使用</span><br><span class="line">                &#123;% if moderate or not comment.disabled %&#125;</span><br><span class="line">                    &#123;% if comment.body_html %&#125;</span><br><span class="line">                        &#123;&#123; comment.body_html | safe &#125;&#125;</span><br><span class="line">                    &#123;% else %&#125;</span><br><span class="line">                        &#123;&#123; comment.body &#125;&#125;</span><br><span class="line">                    &#123;% endif %&#125;</span><br><span class="line">                &#123;% endif %&#125;</span><br><span class="line">            &lt;&#x2F;div&gt;</span><br><span class="line">            &#123;% if moderate %&#125;</span><br><span class="line">                &lt;br&gt;</span><br><span class="line">                &#123;% if comment.disabled %&#125;</span><br><span class="line">                &lt;a class&#x3D;&quot;btn btn-default btn-xs&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.moderate_enable&#39;, id&#x3D;comment.id, page&#x3D;page) &#125;&#125;&quot;&gt;Enable&lt;&#x2F;a&gt;</span><br><span class="line">                &#123;% else %&#125;</span><br><span class="line">                &lt;a class&#x3D;&quot;btn btn-danger btn-xs&quot; href&#x3D;&quot;&#123;&#123; url_for(&#39;.moderate_disable&#39;, id&#x3D;comment.id, page&#x3D;page) &#125;&#125;&quot;&gt;Disable&lt;&#x2F;a&gt;</span><br><span class="line">                &#123;% endif %&#125;</span><br><span class="line">            &#123;% endif %&#125;</span><br><span class="line">            ...</span><br></pre></td></tr></table></figure>
+<p>评论管理路由</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;moderate&#x2F;enable&#x2F;&lt;int:id&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.MODERATE)</span><br><span class="line">def moderate_enable(id):</span><br><span class="line">    comment &#x3D; Comment.query.get_or_404(id)</span><br><span class="line">    comment.disabled &#x3D; False</span><br><span class="line">    db.session.add(comment)</span><br><span class="line">    db.session.commit()</span><br><span class="line">    return redirect(url_for(&#39;.moderate&#39;,</span><br><span class="line">                            page&#x3D;request.args.get(&#39;page&#39;, 1, type&#x3D;int)))</span><br><span class="line"></span><br><span class="line">@main.route(&#39;&#x2F;moderate&#x2F;disable&#x2F;&lt;int:id&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.MODERATE)</span><br><span class="line">def moderate_disable(id):</span><br><span class="line">    comment &#x3D; Comment.query.get_or_404(id)</span><br><span class="line">    comment.disabled &#x3D; True</span><br><span class="line">    db.session.add(comment)</span><br><span class="line">    db.session.commit()</span><br><span class="line">    return redirect(url_for(&#39;.moderate&#39;,</span><br><span class="line">                            page&#x3D;request.args.get(&#39;page&#39;, 1, type&#x3D;int)))</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/10/Flask-14/" data-id="ckiiladn40001lzjxa01m9pxp" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Flask-13" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/10/Flask-13/" class="article-date">
+  <time datetime="2020-12-10T08:37:18.000Z" itemprop="datePublished">2020-12-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/10/Flask-13/">Flask(13)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="关注者"><a href="#关注者" class="headerlink" title="关注者"></a>关注者</h1><h3 id="多对多关系"><a href="#多对多关系" class="headerlink" title="多对多关系"></a>多对多关系</h3><p>解决方法：添加第三张表，这个表称为关联表。可以将多对多分解成两个一对多关系。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">registrations&#x3D; db.Table(&#39;registrations&#39;</span><br><span class="line">    db.Column(&#39;student_id&#39;,db.Integer,db.ForeignKey(&#39;students.id&#39;)),</span><br><span class="line">    db.Column(&#39;class_id&#39;,db.Integer,db.ForeignKey(&#39;classes.id&#39;))</span><br><span class="line">)</span><br><span class="line">class Student(db.Model):</span><br><span class="line">    id &#x3D; db.Column(db.Integer,primary_key&#x3D;True)</span><br><span class="line">    name &#x3D; db.Column(db.String)</span><br><span class="line">    classes &#x3D; db.relationship(&#39;Class&#39;,</span><br><span class="line">                               secondary&#x3D;registrations,</span><br><span class="line">                               backref&#x3D;db.backref(&#39;students&#39;,lazy&#x3D;&#39;dynamic&#39;),</span><br><span class="line">                               lazy&#x3D;&#39;dynamic&#39;)</span><br><span class="line"></span><br><span class="line">class Class(db.Model):</span><br><span class="line">    id &#x3D; db.Column(db.Integer,primary_key&#x3D;True)</span><br><span class="line">    name &#x3D; db.Column(db.String)                               </span><br><span class="line">在多对多关系中，必须把secondary参数设为关联表，多对多关系可在任何一个类中定义，backref函数会处理好关系的另一侧。db.backref()可以定义students属性。关联表为SQLAlchemy控制，没有模型。</span><br></pre></td></tr></table></figure>
+
+<h3 id="自引用关系"><a href="#自引用关系" class="headerlink" title="自引用关系"></a>自引用关系</h3><p>如果关系中的两侧都在同一张表中，这种关系叫<strong>自引用关系</strong>。</p>
+<h3 id="高级多对多关系"><a href="#高级多对多关系" class="headerlink" title="高级多对多关系"></a>高级多对多关系</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">为了提升关联表的地位，创建一个模型，便于操作。</span><br><span class="line">class Follow(db.Model):</span><br><span class="line">    __tablename__ &#x3D; &#39;follows&#39;</span><br><span class="line">    follower_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;users.id&#39;),</span><br><span class="line">                            primary_key&#x3D;True)</span><br><span class="line">    followed_id &#x3D; db.Column(db.Integer, db.ForeignKey(&#39;users.id&#39;),</span><br><span class="line">                            primary_key&#x3D;True)</span><br><span class="line">    timestamp &#x3D; db.Column(db.DateTime, default&#x3D;datetime.utcnow)</span><br></pre></td></tr></table></figure>
+
+<p>使用两个一对多关系实现多对多关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">class User(UserMixin, db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    followed &#x3D; db.relationship(&#39;Follow&#39;,</span><br><span class="line">                               foreign_keys&#x3D;[Follow.follower_id],</span><br><span class="line">                               backref&#x3D;db.backref(&#39;follower&#39;, lazy&#x3D;&#39;joined&#39;),</span><br><span class="line">                               lazy&#x3D;&#39;dynamic&#39;,</span><br><span class="line">                               cascade&#x3D;&#39;all, delete-orphan&#39;)</span><br><span class="line">    followers &#x3D; db.relationship(&#39;Follow&#39;,</span><br><span class="line">                                foreign_keys&#x3D;[Follow.followed_id],</span><br><span class="line">                                backref&#x3D;db.backref(&#39;followed&#39;, lazy&#x3D;&#39;joined&#39;),</span><br><span class="line">                                lazy&#x3D;&#39;dynamic&#39;,</span><br><span class="line">                                # 该参数用来销毁关联表的，这个选项只能用在一对多</span><br><span class="line">                                cascade&#x3D;&#39;all, delete-orphan&#39;)</span><br><span class="line">因为两个外键都在同一个模型中，为了消除外键间的歧义，定义关系时必须使用可选参数</span><br><span class="line">foreign_keys指定外键。db.backref（）不是指定两个关系之间的引用关系，而是回引Follow模型。</span><br></pre></td></tr></table></figure>
+
+<p>对于backref与lazy函数的解释：<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq/_34146899/article/details/52559747">https://blog.csdn.net/qq\_34146899/article/details/52559747</a>  </p>
+<p>关注辅助方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">class User(db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    def follow(self, user):</span><br><span class="line">        if not self.is_following(user):</span><br><span class="line">            f &#x3D; Follow(follower&#x3D;self, followed&#x3D;user)</span><br><span class="line">            db.session.add(f)</span><br><span class="line"></span><br><span class="line">    def unfollow(self, user):</span><br><span class="line">        f &#x3D; self.followed.filter_by(followed_id&#x3D;user.id).first()</span><br><span class="line">        if f:</span><br><span class="line">            db.session.delete(f)</span><br><span class="line"></span><br><span class="line">    def is_following(self, user):</span><br><span class="line">        if user.id is None:</span><br><span class="line">            return False</span><br><span class="line">        return self.followed.filter_by(</span><br><span class="line">            followed_id&#x3D;user.id).first() is not None</span><br><span class="line"></span><br><span class="line">    def is_followed_by(self, user):</span><br><span class="line">        if user.id is None:</span><br><span class="line">            return False</span><br><span class="line">        return self.followers.filter_by(</span><br><span class="line">            follower_id&#x3D;user.id).first() is not None</span><br></pre></td></tr></table></figure>
+
+<p>关注路由和视图函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;follow&#x2F;&lt;username&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">@permission_required(Permission.FOLLOW)</span><br><span class="line">def follow(username):</span><br><span class="line">    user &#x3D; User.query.filter_by(username&#x3D;username).first()</span><br><span class="line">    if user is None:</span><br><span class="line">        flash(&#39;Invalid user.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.index&#39;))</span><br><span class="line">    if current_user.is_following(user):</span><br><span class="line">        flash(&#39;You are already following this user.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.user&#39;, username&#x3D;username))</span><br><span class="line">    current_user.follow(user)</span><br><span class="line">    db.session.commit()</span><br><span class="line">    flash(&#39;You are now following %s.&#39; % username)</span><br><span class="line">    return redirect(url_for(&#39;.user&#39;, username&#x3D;username))</span><br></pre></td></tr></table></figure>
+<p>关注者路由和视图函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;followers&#x2F;&lt;username&gt;&#39;)</span><br><span class="line">def followers(username):</span><br><span class="line">    user &#x3D; User.query.filter_by(username&#x3D;username).first()</span><br><span class="line">    if user is None:</span><br><span class="line">        flash(&#39;Invalid user.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;.index&#39;))</span><br><span class="line">    page &#x3D; request.args.get(&#39;page&#39;, 1, type&#x3D;int)</span><br><span class="line">    pagination &#x3D; user.followers.paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_FOLLOWERS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    follows &#x3D; [&#123;&#39;user&#39;: item.follower, &#39;timestamp&#39;: item.timestamp&#125;</span><br><span class="line">               for item in pagination.items]</span><br><span class="line">    return render_template(&#39;followers.html&#39;, user&#x3D;user, title&#x3D;&quot;Followers of&quot;,</span><br><span class="line">                           endpoint&#x3D;&#39;.followers&#39;, pagination&#x3D;pagination,</span><br><span class="line">                           follows&#x3D;follows)</span><br></pre></td></tr></table></figure>
+<h2 id="使用数据库联结查询所关注用户的文章"><a href="#使用数据库联结查询所关注用户的文章" class="headerlink" title="使用数据库联结查询所关注用户的文章"></a>使用数据库联结查询所关注用户的文章</h2><p>联结操作用到两个或更多的数据表，在其中查找满足指定条件的记录组合，再把记录组合插入一个临时表中，这个临时表就是联结查询的结果。  </p>
+<p>使用Flask-SQLAlchemy执行这个联结操作的查询十分复杂  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">return db.session.query(Post).select_from(Follow).\</span><br><span class="line">    filter_by(follower_id&#x3D;self.id).\</span><br><span class="line">    join(Post,Follow.followed_id &#x3D;&#x3D; Post.author_id)</span><br><span class="line"></span><br><span class="line">db.session.query(Post):返回一个Post模型对象</span><br><span class="line">select_from(Follow)：这个查询从Follow模型开始</span><br><span class="line">filter_by(follower_id&#x3D;self.id)使用关注用户过滤follows表</span><br><span class="line">join(Post,Follow.followed_id &#x3D;&#x3D; Post.author_id)：联结filter_by()得到的结果和Post对象</span><br><span class="line"></span><br><span class="line">调换过滤器和联结的顺序可以简化这个查询：</span><br><span class="line">    return Post.query.join(Follow,Follow.followed_id &#x3D;&#x3D; Post.author_id)\</span><br><span class="line">        .filter(Follow.follower_id &#x3D;&#x3D; self.id)</span><br></pre></td></tr></table></figure>
+<p>获取所关注用户的文章：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class User(db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    @property</span><br><span class="line">    def followed_posts(self):</span><br><span class="line">        return Post.query.join(Follow, Follow.followed_id &#x3D;&#x3D; Post.author_id)\</span><br><span class="line">            .filter(Follow.follower_id &#x3D;&#x3D; self.id)</span><br></pre></td></tr></table></figure>
+
+<p>显示所有博客文章或只显示所关注用户的文章：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    # ...</span><br><span class="line">    show_followed &#x3D; False</span><br><span class="line">    if current_user.is_authenticated:</span><br><span class="line">        show_followed &#x3D; bool(request.cookies.get(&#39;show_followed&#39;, &#39;&#39;))</span><br><span class="line">    if show_followed:</span><br><span class="line">        query &#x3D; current_user.followed_posts</span><br><span class="line">    else:</span><br><span class="line">        query &#x3D; Post.query</span><br><span class="line">    pagination &#x3D; query.order_by(Post.timestamp.desc()).paginate(</span><br><span class="line">        page, per_page&#x3D;current_app.config[&#39;FLASKY_POSTS_PER_PAGE&#39;],</span><br><span class="line">        error_out&#x3D;False)</span><br><span class="line">    posts &#x3D; pagination.items</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, posts&#x3D;posts,</span><br><span class="line">                           show_followed&#x3D;show_followed, pagination&#x3D;pagination)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查询所有文章还是所关注用户的文章：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">@main.route(&#39;&#x2F;all&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def show_all():</span><br><span class="line">    resp &#x3D; make_response(redirect(url_for(&#39;.index&#39;)))</span><br><span class="line">    resp.set_cookie(&#39;show_followed&#39;, &#39;&#39;, max_age&#x3D;30*24*60*60)</span><br><span class="line">    return resp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">@main.route(&#39;&#x2F;followed&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def show_followed():</span><br><span class="line">    resp &#x3D; make_response(redirect(url_for(&#39;.index&#39;)))</span><br><span class="line">    resp.set_cookie(&#39;show_followed&#39;, &#39;1&#39;, max_age&#x3D;30*24*60*60)</span><br><span class="line">    return resp</span><br><span class="line"></span><br><span class="line">cookie只能在响应对象中设置，因此这两个路由不能依赖Flask，使用make_response()来创建响应对象。</span><br></pre></td></tr></table></figure>
+
+<p>将自身设为自己的关注者：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class User(db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    def __init__(self,**kwargs):</span><br><span class="line">        # ...</span><br><span class="line">        self.follow(self)</span><br><span class="line">不设置的话，自己的文章不会在关注的文章中显示。</span><br></pre></td></tr></table></figure>
+
+<p>更新现有用户：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">class User(UserMixin,db.Model):</span><br><span class="line">    # ...</span><br><span class="line">    @staticmethod</span><br><span class="line">    def add_self_follows():</span><br><span class="line">        for user in User.query.all():</span><br><span class="line">            if not user.is_following(user):</span><br><span class="line">                user.follow(user)</span><br><span class="line">                db.session.add(user)</span><br><span class="line">                db.session.commit()</span><br><span class="line">    # ...</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/10/Flask-13/" data-id="ckiiladmw0000lzjxc2n32wwf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-解决migration版本冲突问题" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/" class="article-date">
@@ -564,119 +687,6 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
 
 
   
-    <article id="post-Flask-6" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/26/Flask-6/" class="article-date">
-  <time datetime="2020-11-26T13:30:58.000Z" itemprop="datePublished">2020-11-26</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/26/Flask-6/">Flask(6)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="flask-mail提供电子邮件支持"><a href="#flask-mail提供电子邮件支持" class="headerlink" title="flask-mail提供电子邮件支持"></a>flask-mail提供电子邮件支持</h2><p>配置flask-mail使用qq邮箱  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">app.config[&#39;MAIL_SERVER&#39;] &#x3D; &#39;smtp.qq.com&#39;</span><br><span class="line">app.config[&#39;MAIL_PORT&#39;] &#x3D; 587</span><br><span class="line">app.config[&#39;MAIL_USE_TLS&#39;] &#x3D; True</span><br><span class="line">app.config[&#39;MAIL_USERNAME&#39;] &#x3D; os.environ.get(&#39;MAIL_USERNAME&#39;)</span><br><span class="line">app.config[&#39;MAIL_PASSWORD&#39;] &#x3D; os.environ.get(&#39;MAIL_PASSWORD&#39;)</span><br></pre></td></tr></table></figure>
-
-<p>初始化flask-mail</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from flask_mail imort Mail</span><br><span class="line">mail &#x3D; Mail(app)</span><br></pre></td></tr></table></figure>
-<p>保存账号密码的环境变量</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export MAIL_USERNAME&#x3D;你的邮箱</span><br><span class="line">export MAIL_PASSWORD&#x3D;授权码</span><br></pre></td></tr></table></figure>
-
-<p>使用shell发送邮件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from flask_mail import Message</span><br><span class="line">&gt;&gt;&gt; from hello import mail</span><br><span class="line">&gt;&gt;&gt; msg &#x3D; Message(&#39;test email&#39;,sender&#x3D;&#39;2635464756@qq.com&#39;,</span><br><span class="line">... recipients&#x3D;[&#39;2635464756@qq.com&#39;])</span><br><span class="line">&gt;&gt;&gt; msg.body &#x3D; &#39;hi&#39;</span><br><span class="line">&gt;&gt;&gt; msg.html &#x3D; &#39;&lt;b&gt;html&lt;&#x2F;b&gt;&#39;</span><br><span class="line">&gt;&gt;&gt; with app.app_context():</span><br><span class="line">... 	mail.send(msg) # 要记得间隔！！不然会报错，send（）函数使用current_app，因此要在激活的应用上下文中执行。</span><br></pre></td></tr></table></figure>
-
-<h3 id="在应用中集成电子邮件发送功能"><a href="#在应用中集成电子邮件发送功能" class="headerlink" title="在应用中集成电子邮件发送功能"></a>在应用中集成电子邮件发送功能</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; NameForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User.query.filter_by(username&#x3D;form.name.data).first()</span><br><span class="line">        if user is None:</span><br><span class="line">            user &#x3D; User(username&#x3D;form.name.data)</span><br><span class="line">            db.session.add(user)</span><br><span class="line">            db.session.commit()</span><br><span class="line">            session[&#39;known&#39;] &#x3D; False</span><br><span class="line">            if app.config[&#39;FLASKY_ADMIN&#39;]:</span><br><span class="line">                send_email(app.config[&#39;FLASKY_ADMIN&#39;], &#39;New User&#39;,</span><br><span class="line">                           &#39;mail&#x2F;new_user&#39;, user&#x3D;user)</span><br><span class="line">        else:</span><br><span class="line">            session[&#39;known&#39;] &#x3D; True</span><br><span class="line">        session[&#39;name&#39;] &#x3D; form.name.data</span><br><span class="line">        return redirect(url_for(&#39;index&#39;))</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, name&#x3D;session.get(&#39;name&#39;),</span><br><span class="line">                           known&#x3D;session.get(&#39;known&#39;, False))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>电子邮件的收件人保存在环境变量FLASKY_ADMIN中，需要创建两个模板文件，分别用于渲染纯文本和HTML的邮件正文。</p>
-<h3 id="异步发送邮件"><a href="#异步发送邮件" class="headerlink" title="异步发送邮件"></a>异步发送邮件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">def send_async_email(app, msg):</span><br><span class="line">    with app.app_context():</span><br><span class="line">        mail.send(msg)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def send_email(to, subject, template, **kwargs):</span><br><span class="line">    msg &#x3D; Message(app.config[&#39;FLASKY_MAIL_SUBJECT_PREFIX&#39;] + &#39; &#39; + subject,</span><br><span class="line">                  sender&#x3D;app.config[&#39;FLASKY_MAIL_SENDER&#39;], recipients&#x3D;[to])</span><br><span class="line">    msg.body &#x3D; render_template(template + &#39;.txt&#39;, **kwargs)</span><br><span class="line">    msg.html &#x3D; render_template(template + &#39;.html&#39;, **kwargs)</span><br><span class="line">    thr &#x3D; Thread(target&#x3D;send_async_email, args&#x3D;[app, msg])</span><br><span class="line">    thr.start()</span><br><span class="line">    return thr</span><br><span class="line"></span><br><span class="line">这不是最好的解决方式，如果要发送大量电子邮件，可以发给Celery任务队列处理。</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/26/Flask-6/" data-id="ckibka3900005pejx3zts24in" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Flask-5" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/26/Flask-5/" class="article-date">
-  <time datetime="2020-11-26T13:30:20.000Z" itemprop="datePublished">2020-11-26</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/26/Flask-5/">Flask(5)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="创建迁移脚本"><a href="#创建迁移脚本" class="headerlink" title="创建迁移脚本"></a>创建迁移脚本</h4><p>使用FLASK-Migrate管理数据库模式变化的步骤：  </p>
-<ul>
-<li>（1）对模型类做必要修改</li>
-<li>（2）执行flask db migrate命令，自动创建一个迁移脚本</li>
-<li>（3）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
-<li>（4）把迁移脚本纳入版本控制</li>
-<li>（5）执行flask db upgrade命令，把迁移应用到数据库中</li>
-</ul>
-<p><code>flask db migrate</code>子命令用于自动创建迁移脚本:<br><code>flask db migrate -m &quot;initial migration&quot;</code></p>
-<h4 id="更新数据库"><a href="#更新数据库" class="headerlink" title="更新数据库"></a>更新数据库</h4><p>检查并修正好迁移脚本后，执行flask db upgrade命令，把迁移应用到数据库中：  </p>
-<p><code>flask db migrate</code>  </p>
-<p>作用与<code>db.create_all()</code>一样，但是<code>flask db migrate</code>可以把改动应用到数据库中，不影响其中保存的数据。  </p>
-<p><strong>注意：如果已经使用了<code>db.create_all()</code>，再次使用<code>flask db migrate</code>会失败，因为表已存在，可以使用<code>flask db stamp</code>把现有的数据库标记为已更新，再次使用即可。</strong></p>
-<h4 id="添加几个迁移"><a href="#添加几个迁移" class="headerlink" title="添加几个迁移"></a>添加几个迁移</h4><p>与创建第一个迁移类似：  </p>
-<ul>
-<li>（1）对模型类做必要修改</li>
-<li>（2）执行flask db migrate命令，自动创建一个迁移脚本</li>
-<li>（3）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
-<li>（4）执行flask db upgrade命令，把迁移应用到数据库中</li>
-</ul>
-<p>为了避免创建大量无意义的小迁移脚本，在前一个迁移脚本的基础上修改步骤如下：  </p>
-<ul>
-<li>（1）执行<code>flask db downgrade</code>命令，还原前一个脚本对数据库的改动（可能会导致部分数据丢失）</li>
-<li>（2）删除前一个迁移脚本</li>
-<li>（3）执行flask db migrate命令，创建一个新的迁移脚本</li>
-<li>（4）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/26/Flask-5/" data-id="ckibka38z0004pejx3ms73yhn" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
@@ -713,6 +723,14 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
       <ul>
         
           <li>
+            <a href="/2020/12/10/Flask-14/">Flask(14)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/10/Flask-13/">Flask(13)</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/">解决migration版本冲突问题</a>
           </li>
         
@@ -722,14 +740,6 @@ print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
         
           <li>
             <a href="/2020/12/06/Flask-11/">Flask(11)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/05/Flask-10/">Flask(10)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/05/Flask-9/">Flask(9)</a>
           </li>
         
       </ul>

@@ -64,6 +64,119 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Flask-6" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/26/Flask-6/" class="article-date">
+  <time datetime="2020-11-26T13:30:58.000Z" itemprop="datePublished">2020-11-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/26/Flask-6/">Flask(6)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="flask-mail提供电子邮件支持"><a href="#flask-mail提供电子邮件支持" class="headerlink" title="flask-mail提供电子邮件支持"></a>flask-mail提供电子邮件支持</h2><p>配置flask-mail使用qq邮箱  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">app.config[&#39;MAIL_SERVER&#39;] &#x3D; &#39;smtp.qq.com&#39;</span><br><span class="line">app.config[&#39;MAIL_PORT&#39;] &#x3D; 587</span><br><span class="line">app.config[&#39;MAIL_USE_TLS&#39;] &#x3D; True</span><br><span class="line">app.config[&#39;MAIL_USERNAME&#39;] &#x3D; os.environ.get(&#39;MAIL_USERNAME&#39;)</span><br><span class="line">app.config[&#39;MAIL_PASSWORD&#39;] &#x3D; os.environ.get(&#39;MAIL_PASSWORD&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>初始化flask-mail</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from flask_mail imort Mail</span><br><span class="line">mail &#x3D; Mail(app)</span><br></pre></td></tr></table></figure>
+<p>保存账号密码的环境变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export MAIL_USERNAME&#x3D;你的邮箱</span><br><span class="line">export MAIL_PASSWORD&#x3D;授权码</span><br></pre></td></tr></table></figure>
+
+<p>使用shell发送邮件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from flask_mail import Message</span><br><span class="line">&gt;&gt;&gt; from hello import mail</span><br><span class="line">&gt;&gt;&gt; msg &#x3D; Message(&#39;test email&#39;,sender&#x3D;&#39;2635464756@qq.com&#39;,</span><br><span class="line">... recipients&#x3D;[&#39;2635464756@qq.com&#39;])</span><br><span class="line">&gt;&gt;&gt; msg.body &#x3D; &#39;hi&#39;</span><br><span class="line">&gt;&gt;&gt; msg.html &#x3D; &#39;&lt;b&gt;html&lt;&#x2F;b&gt;&#39;</span><br><span class="line">&gt;&gt;&gt; with app.app_context():</span><br><span class="line">... 	mail.send(msg) # 要记得间隔！！不然会报错，send（）函数使用current_app，因此要在激活的应用上下文中执行。</span><br></pre></td></tr></table></figure>
+
+<h3 id="在应用中集成电子邮件发送功能"><a href="#在应用中集成电子邮件发送功能" class="headerlink" title="在应用中集成电子邮件发送功能"></a>在应用中集成电子邮件发送功能</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#39;&#x2F;&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def index():</span><br><span class="line">    form &#x3D; NameForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User.query.filter_by(username&#x3D;form.name.data).first()</span><br><span class="line">        if user is None:</span><br><span class="line">            user &#x3D; User(username&#x3D;form.name.data)</span><br><span class="line">            db.session.add(user)</span><br><span class="line">            db.session.commit()</span><br><span class="line">            session[&#39;known&#39;] &#x3D; False</span><br><span class="line">            if app.config[&#39;FLASKY_ADMIN&#39;]:</span><br><span class="line">                send_email(app.config[&#39;FLASKY_ADMIN&#39;], &#39;New User&#39;,</span><br><span class="line">                           &#39;mail&#x2F;new_user&#39;, user&#x3D;user)</span><br><span class="line">        else:</span><br><span class="line">            session[&#39;known&#39;] &#x3D; True</span><br><span class="line">        session[&#39;name&#39;] &#x3D; form.name.data</span><br><span class="line">        return redirect(url_for(&#39;index&#39;))</span><br><span class="line">    return render_template(&#39;index.html&#39;, form&#x3D;form, name&#x3D;session.get(&#39;name&#39;),</span><br><span class="line">                           known&#x3D;session.get(&#39;known&#39;, False))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>电子邮件的收件人保存在环境变量FLASKY_ADMIN中，需要创建两个模板文件，分别用于渲染纯文本和HTML的邮件正文。</p>
+<h3 id="异步发送邮件"><a href="#异步发送邮件" class="headerlink" title="异步发送邮件"></a>异步发送邮件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">def send_async_email(app, msg):</span><br><span class="line">    with app.app_context():</span><br><span class="line">        mail.send(msg)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def send_email(to, subject, template, **kwargs):</span><br><span class="line">    msg &#x3D; Message(app.config[&#39;FLASKY_MAIL_SUBJECT_PREFIX&#39;] + &#39; &#39; + subject,</span><br><span class="line">                  sender&#x3D;app.config[&#39;FLASKY_MAIL_SENDER&#39;], recipients&#x3D;[to])</span><br><span class="line">    msg.body &#x3D; render_template(template + &#39;.txt&#39;, **kwargs)</span><br><span class="line">    msg.html &#x3D; render_template(template + &#39;.html&#39;, **kwargs)</span><br><span class="line">    thr &#x3D; Thread(target&#x3D;send_async_email, args&#x3D;[app, msg])</span><br><span class="line">    thr.start()</span><br><span class="line">    return thr</span><br><span class="line"></span><br><span class="line">这不是最好的解决方式，如果要发送大量电子邮件，可以发给Celery任务队列处理。</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/26/Flask-6/" data-id="ckibka3900005pejx3zts24in" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Flask-5" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/26/Flask-5/" class="article-date">
+  <time datetime="2020-11-26T13:30:20.000Z" itemprop="datePublished">2020-11-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/26/Flask-5/">Flask(5)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="创建迁移脚本"><a href="#创建迁移脚本" class="headerlink" title="创建迁移脚本"></a>创建迁移脚本</h4><p>使用FLASK-Migrate管理数据库模式变化的步骤：  </p>
+<ul>
+<li>（1）对模型类做必要修改</li>
+<li>（2）执行flask db migrate命令，自动创建一个迁移脚本</li>
+<li>（3）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
+<li>（4）把迁移脚本纳入版本控制</li>
+<li>（5）执行flask db upgrade命令，把迁移应用到数据库中</li>
+</ul>
+<p><code>flask db migrate</code>子命令用于自动创建迁移脚本:<br><code>flask db migrate -m &quot;initial migration&quot;</code></p>
+<h4 id="更新数据库"><a href="#更新数据库" class="headerlink" title="更新数据库"></a>更新数据库</h4><p>检查并修正好迁移脚本后，执行flask db upgrade命令，把迁移应用到数据库中：  </p>
+<p><code>flask db migrate</code>  </p>
+<p>作用与<code>db.create_all()</code>一样，但是<code>flask db migrate</code>可以把改动应用到数据库中，不影响其中保存的数据。  </p>
+<p><strong>注意：如果已经使用了<code>db.create_all()</code>，再次使用<code>flask db migrate</code>会失败，因为表已存在，可以使用<code>flask db stamp</code>把现有的数据库标记为已更新，再次使用即可。</strong></p>
+<h4 id="添加几个迁移"><a href="#添加几个迁移" class="headerlink" title="添加几个迁移"></a>添加几个迁移</h4><p>与创建第一个迁移类似：  </p>
+<ul>
+<li>（1）对模型类做必要修改</li>
+<li>（2）执行flask db migrate命令，自动创建一个迁移脚本</li>
+<li>（3）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
+<li>（4）执行flask db upgrade命令，把迁移应用到数据库中</li>
+</ul>
+<p>为了避免创建大量无意义的小迁移脚本，在前一个迁移脚本的基础上修改步骤如下：  </p>
+<ul>
+<li>（1）执行<code>flask db downgrade</code>命令，还原前一个脚本对数据库的改动（可能会导致部分数据丢失）</li>
+<li>（2）删除前一个迁移脚本</li>
+<li>（3）执行flask db migrate命令，创建一个新的迁移脚本</li>
+<li>（4）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/26/Flask-5/" data-id="ckibka38z0004pejx3ms73yhn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Flask-4" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/11/23/Flask-4/" class="article-date">
@@ -672,6 +785,14 @@
       <ul>
         
           <li>
+            <a href="/2020/12/10/Flask-14/">Flask(14)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/10/Flask-13/">Flask(13)</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/">解决migration版本冲突问题</a>
           </li>
         
@@ -681,14 +802,6 @@
         
           <li>
             <a href="/2020/12/06/Flask-11/">Flask(11)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/05/Flask-10/">Flask(10)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/05/Flask-9/">Flask(9)</a>
           </li>
         
       </ul>
