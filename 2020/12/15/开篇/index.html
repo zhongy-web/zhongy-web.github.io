@@ -5,19 +5,22 @@
   
 
   
-  <title>Flask(5) | Hexo</title>
+  <title>开篇 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="创建迁移脚本使用FLASK-Migrate管理数据库模式变化的步骤：    （1）对模型类做必要修改 （2）执行flask db migrate命令，自动创建一个迁移脚本 （3）检查自动生成的脚本，根据对模型的实际改动进行调整 （4）把迁移脚本纳入版本控制 （5）执行flask db upgrade命令，把迁移应用到数据库中  flask db migrate子命令用于自动创建迁移脚本:flask">
+  <meta name="description" content="Mysql学习流程 MySQL 的主流分支 MySQL 的优点     前面提到，大多数技术人都是 MySQL 用户，主要是因为 MySQL 具有 8 大优点。 第一个是体积小、速度快，可以在不占用太多资源的情况下提供数据库服务；  第二个是开源免费，工具生态完善，用起来没有经济门槛；  然后是，简单易用，维护成本低，用起来没有技术门槛；  兼容性好，支持多种操作系统，用起来没有平台门槛；  提供">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Flask(5)">
-<meta property="og:url" content="http://example.com/2020/11/26/Flask-5/index.html">
+<meta property="og:title" content="开篇">
+<meta property="og:url" content="http://example.com/2020/12/15/%E5%BC%80%E7%AF%87/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="创建迁移脚本使用FLASK-Migrate管理数据库模式变化的步骤：    （1）对模型类做必要修改 （2）执行flask db migrate命令，自动创建一个迁移脚本 （3）检查自动生成的脚本，根据对模型的实际改动进行调整 （4）把迁移脚本纳入版本控制 （5）执行flask db upgrade命令，把迁移应用到数据库中  flask db migrate子命令用于自动创建迁移脚本:flask">
+<meta property="og:description" content="Mysql学习流程 MySQL 的主流分支 MySQL 的优点     前面提到，大多数技术人都是 MySQL 用户，主要是因为 MySQL 具有 8 大优点。 第一个是体积小、速度快，可以在不占用太多资源的情况下提供数据库服务；  第二个是开源免费，工具生态完善，用起来没有经济门槛；  然后是，简单易用，维护成本低，用起来没有技术门槛；  兼容性好，支持多种操作系统，用起来没有平台门槛；  提供">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-11-26T13:30:20.000Z">
-<meta property="article:modified_time" content="2020-11-26T13:30:51.221Z">
+<meta property="og:image" content="http://s0.lgstatic.com/i/image2/M01/8A/BB/CgoB5l14lsGAVvSHAAKCwxf_FfY611.png">
+<meta property="og:image" content="http://s0.lgstatic.com/i/image2/M01/8A/BB/CgoB5l14ltCAN9k-AAQ_Fm7r2hs508.png">
+<meta property="article:published_time" content="2020-12-15T12:42:30.000Z">
+<meta property="article:modified_time" content="2020-12-15T12:42:44.175Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://s0.lgstatic.com/i/image2/M01/8A/BB/CgoB5l14lsGAVvSHAAKCwxf_FfY611.png">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -66,10 +69,10 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-Flask-5" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-开篇" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2020/11/26/Flask-5/" class="article-date">
-  <time datetime="2020-11-26T13:30:20.000Z" itemprop="datePublished">2020-11-26</time>
+    <a href="/2020/12/15/%E5%BC%80%E7%AF%87/" class="article-date">
+  <time datetime="2020-12-15T12:42:30.000Z" itemprop="datePublished">2020-12-15</time>
 </a>
     
   </div>
@@ -80,7 +83,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Flask(5)
+      开篇
     </h1>
   
 
@@ -88,38 +91,29 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="创建迁移脚本"><a href="#创建迁移脚本" class="headerlink" title="创建迁移脚本"></a>创建迁移脚本</h4><p>使用FLASK-Migrate管理数据库模式变化的步骤：  </p>
-<ul>
-<li>（1）对模型类做必要修改</li>
-<li>（2）执行flask db migrate命令，自动创建一个迁移脚本</li>
-<li>（3）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
-<li>（4）把迁移脚本纳入版本控制</li>
-<li>（5）执行flask db upgrade命令，把迁移应用到数据库中</li>
-</ul>
-<p><code>flask db migrate</code>子命令用于自动创建迁移脚本:<br><code>flask db migrate -m &quot;initial migration&quot;</code></p>
-<h4 id="更新数据库"><a href="#更新数据库" class="headerlink" title="更新数据库"></a>更新数据库</h4><p>检查并修正好迁移脚本后，执行flask db upgrade命令，把迁移应用到数据库中：  </p>
-<p><code>flask db migrate</code>  </p>
-<p>作用与<code>db.create_all()</code>一样，但是<code>flask db migrate</code>可以把改动应用到数据库中，不影响其中保存的数据。  </p>
-<p><strong>注意：如果已经使用了<code>db.create_all()</code>，再次使用<code>flask db migrate</code>会失败，因为表已存在，可以使用<code>flask db stamp</code>把现有的数据库标记为已更新，再次使用即可。</strong></p>
-<h4 id="添加几个迁移"><a href="#添加几个迁移" class="headerlink" title="添加几个迁移"></a>添加几个迁移</h4><p>与创建第一个迁移类似：  </p>
-<ul>
-<li>（1）对模型类做必要修改</li>
-<li>（2）执行flask db migrate命令，自动创建一个迁移脚本</li>
-<li>（3）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
-<li>（4）执行flask db upgrade命令，把迁移应用到数据库中</li>
-</ul>
-<p>为了避免创建大量无意义的小迁移脚本，在前一个迁移脚本的基础上修改步骤如下：  </p>
-<ul>
-<li>（1）执行<code>flask db downgrade</code>命令，还原前一个脚本对数据库的改动（可能会导致部分数据丢失）</li>
-<li>（2）删除前一个迁移脚本</li>
-<li>（3）执行flask db migrate命令，创建一个新的迁移脚本</li>
-<li>（4）检查自动生成的脚本，根据对模型的实际改动进行调整</li>
-</ul>
+        <h4 id="Mysql学习流程"><a href="#Mysql学习流程" class="headerlink" title="Mysql学习流程"></a>Mysql学习流程</h4><p><img src="http://s0.lgstatic.com/i/image2/M01/8A/BB/CgoB5l14lsGAVvSHAAKCwxf_FfY611.png" alt="avatar"></p>
+<h4 id="MySQL-的主流分支"><a href="#MySQL-的主流分支" class="headerlink" title="MySQL 的主流分支"></a>MySQL 的主流分支</h4><p><img src="http://s0.lgstatic.com/i/image2/M01/8A/BB/CgoB5l14ltCAN9k-AAQ_Fm7r2hs508.png" alt="avatar"></p>
+<h4 id="MySQL-的优点"><a href="#MySQL-的优点" class="headerlink" title="MySQL 的优点"></a>MySQL 的优点</h4><p> <br>    前面提到，大多数技术人都是 MySQL 用户，主要是因为 MySQL 具有 8 大优点。</p>
+<pre><code>第一个是体积小、速度快，可以在不占用太多资源的情况下提供数据库服务；
+
+第二个是开源免费，工具生态完善，用起来没有经济门槛；
+
+然后是，简单易用，维护成本低，用起来没有技术门槛；
+
+兼容性好，支持多种操作系统，用起来没有平台门槛；
+
+提供多种 API 接口；
+
+支持多种开发语言，用起来没有编程语言门槛；
+
+社区及用户活跃，用起来没有技术支持门槛；
+
+最重要的，就是 MySQL 的数据库属性，它支持事务、MVCC、4 种隔离级别等，同时易扩展、集群、高可用等也可以满足一般需求。</code></pre>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/26/Flask-5/" data-id="ckibka38z0004pejx3ms73yhn" class="article-share-link">Share</a>
+      <a data-url="http://example.com/2020/12/15/%E5%BC%80%E7%AF%87/" data-id="ckipz7rg60002b3jxa1doc492" class="article-share-link">Share</a>
       
       
     </footer>
@@ -128,19 +122,10 @@
     
 <nav id="article-nav">
   
-    <a href="/2020/11/26/Flask-6/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Flask(6)
-        
-      </div>
-    </a>
   
-  
-    <a href="/2020/11/23/Flask-4/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2020/12/15/%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%E6%9C%BA%E5%88%B6%EF%BC%881%EF%BC%89/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Flask(4)</div>
+      <div class="article-nav-title">事务与锁机制（1）</div>
     </a>
   
 </nav>

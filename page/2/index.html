@@ -64,6 +64,215 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Flask-8" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/04/Flask-8/" class="article-date">
+  <time datetime="2020-12-04T13:32:31.000Z" itemprop="datePublished">2020-12-04</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/12/04/Flask-8/">Flask(8)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="理解Flask-Login的运作方式"><a href="#理解Flask-Login的运作方式" class="headerlink" title="理解Flask-Login的运作方式"></a>理解Flask-Login的运作方式</h3><ol>
+<li>用户点击Log In链接，访问<a target="_blank" rel="noopener" href="http://localhost:5000/auth/login%E3%80%82%E5%A4%84%E7%90%86%E8%BF%99%E4%B8%AAURL%E7%9A%84%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E%E7%99%BB%E5%BD%95%E8%A1%A8%E5%8D%95%E6%A8%A1%E6%9D%BF">http://localhost:5000/auth/login。处理这个URL的函数返回登录表单模板</a>  </li>
+<li>用户输入，点击提交，变为post请求。  <ol>
+<li>处理函数验证通过表单提交的凭据，然后调用Flask-login的login_user()函数，登入用户。  </li>
+<li>login_user(user)函数把用户ID以字符串的形式写入用户会话中。  </li>
+<li>视图函数重定向回首页。  </li>
+</ol>
+</li>
+<li>浏览器收到重定向响应，请求首页。  <ol>
+<li>调用首页的视图函数，渲染主页模板  </li>
+<li>在渲染这个Jinja2模板过程中，首次对Flask-login的current_user()引用  </li>
+<li>这个请求还没有给上下文变量current_user赋值，因此调用Flask-Login内部的<code>_get_user()</code>函数，找出用户。</li>
+<li><code>_get_user()</code>函数会检查用户会话中有没有用户的ID，没有则返回一个Flask-Login的AnonymousUser实例；有则调用应用中使用user_loader装饰器注册的函数，传入用户ID。  </li>
+<li>应用中的user_loader处理函数从数据库中读取用户，将其返回。Flask-Login把返回的用户对象赋值给当前请求的current_user上下文变量。  </li>
+<li>模板收到新复制的current_user。  </li>
+</ol>
+</li>
+</ol>
+<p>使用login_required装饰器的视图函数，将使用current_user上下文变量判断current_user.is_authenticated表达式结果是否为True。  </p>
+<h2 id="注册新用户"><a href="#注册新用户" class="headerlink" title="注册新用户"></a>注册新用户</h2><h3 id="添加用户注册表单"><a href="#添加用户注册表单" class="headerlink" title="添加用户注册表单"></a>添加用户注册表单</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class RegistrationForm(FlaskForm):</span><br><span class="line">    email &#x3D; StringField(&#39;Email&#39;, validators&#x3D;[DataRequired(), Length(1, 64),</span><br><span class="line">                                             Email()])</span><br><span class="line">    username &#x3D; StringField(&#39;Username&#39;, validators&#x3D;[</span><br><span class="line">        DataRequired(), Length(1, 64),</span><br><span class="line">        Regexp(&#39;^[A-Za-z][A-Za-z0-9_.]*$&#39;, 0,</span><br><span class="line">               &#39;Usernames must have only letters, numbers, dots or &#39;</span><br><span class="line">               &#39;underscores&#39;)])</span><br><span class="line">    password &#x3D; PasswordField(&#39;Password&#39;, validators&#x3D;[</span><br><span class="line">        DataRequired(), EqualTo(&#39;password2&#39;, message&#x3D;&#39;Passwords must match.&#39;)])</span><br><span class="line">    password2 &#x3D; PasswordField(&#39;Confirm password&#39;, validators&#x3D;[DataRequired()])</span><br><span class="line">    submit &#x3D; SubmitField(&#39;Register&#39;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="注册新用户-1"><a href="#注册新用户-1" class="headerlink" title="注册新用户"></a>注册新用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;register&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def register():</span><br><span class="line">    form &#x3D; RegistrationForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User(email&#x3D;form.email.data.lower(),</span><br><span class="line">                    username&#x3D;form.username.data,</span><br><span class="line">                    password&#x3D;form.password.data)</span><br><span class="line">        db.session.add(user)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;You can now login.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;auth.login&#39;))</span><br><span class="line">    return render_template(&#39;auth&#x2F;register.html&#39;, form&#x3D;form)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="确认账户"><a href="#确认账户" class="headerlink" title="确认账户"></a>确认账户</h2><h3 id="使用itsdangerous生成确认令牌"><a href="#使用itsdangerous生成确认令牌" class="headerlink" title="使用itsdangerous生成确认令牌"></a>使用itsdangerous生成确认令牌</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def generate_confirmation_token(self, expiration&#x3D;3600): # expiration有效时间</span><br><span class="line">        s &#x3D; Serializer(current_app.config[&#39;SECRET_KEY&#39;], expiration) # 使用TimedJSONWebSignatureSerializer类，生成一个具有过期时间的JSON Web签名（JWS），接受的参数为密钥，可以使用SECRET_KEY</span><br><span class="line">        return s.dumps(&#123;&#39;confirm&#39;: self.id&#125;).decode(&#39;utf-8&#39;) # dumps方法为指定数据生成一个加密签名。</span><br><span class="line"></span><br><span class="line">    def confirm(self, token):</span><br><span class="line">        s &#x3D; Serializer(current_app.config[&#39;SECRET_KEY&#39;])</span><br><span class="line">        try:</span><br><span class="line">            data &#x3D; s.loads(token.encode(&#39;utf-8&#39;)) # 与dumps对应，检验签名和过期时间</span><br><span class="line">        except:</span><br><span class="line">            return False</span><br><span class="line">        if data.get(&#39;confirm&#39;) !&#x3D; self.id:</span><br><span class="line">            return False</span><br><span class="line">        self.confirmed &#x3D; True</span><br><span class="line">        db.session.add(self)</span><br><span class="line">        return True</span><br><span class="line">        返回True代表认证成功。</span><br></pre></td></tr></table></figure>
+<h3 id="发送确认邮件"><a href="#发送确认邮件" class="headerlink" title="发送确认邮件"></a>发送确认邮件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;register&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def register():</span><br><span class="line">    form &#x3D; RegistrationForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        # ...</span><br><span class="line">        db.session.add(user)</span><br><span class="line">        db.session.commit()</span><br><span class="line">        token &#x3D; user.generate_confirmation_token() # 注册令牌</span><br><span class="line">        send_email(user.email, &#39;Confirm Your Account&#39;,</span><br><span class="line">                   &#39;auth&#x2F;email&#x2F;confirm&#39;, user&#x3D;user, token&#x3D;token)</span><br><span class="line">        flash(&#39;A confirmation email has been sent to you by email.&#39;)</span><br><span class="line">        return redirect(url_for(&#39;auth.login&#39;))</span><br><span class="line">    return render_template(&#39;auth&#x2F;register.html&#39;, form&#x3D;form)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>发送文本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Dear &#123;&#123; user.username &#125;&#125;,</span><br><span class="line"></span><br><span class="line">Welcome to Flasky!</span><br><span class="line"></span><br><span class="line">To confirm your account please click on the following link:</span><br><span class="line"></span><br><span class="line">&#123;&#123; url_for(&#39;auth.confirm&#39;, token&#x3D;token, _external&#x3D;True) &#125;&#125; # url_for()返回相对URL，_external&#x3D;True会返回一个完整的URL</span><br><span class="line"></span><br><span class="line">Sincerely,</span><br><span class="line"></span><br><span class="line">The Flasky Team</span><br><span class="line"></span><br><span class="line">Note: replies to this email address are not monitored.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>确认用户的账户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;confirm&#x2F;&lt;token&gt;&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def confirm(token):</span><br><span class="line">    if current_user.confirmed:</span><br><span class="line">        return redirect(url_for(&#39;main.index&#39;))</span><br><span class="line">    if current_user.confirm(token):</span><br><span class="line">        db.session.commit()</span><br><span class="line">        flash(&#39;You have confirmed your account. Thanks!&#39;)</span><br><span class="line">    else:</span><br><span class="line">        flash(&#39;The confirmation link is invalid or has expired.&#39;)</span><br><span class="line">    return redirect(url_for(&#39;main.index&#39;))</span><br></pre></td></tr></table></figure>
+<p>在蓝本中使用钩子，只能应用到属于蓝本的请求上，如果想要在蓝本中使用针对应用全局请求的钩子，必须使用before_app_request装饰器。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@auth.before_app_request</span><br><span class="line">def before_request():</span><br><span class="line">    if current_user.is_authenticated \</span><br><span class="line">            and not current_user.confirmed \</span><br><span class="line">            and request.endpoint \</span><br><span class="line">            and request.blueprint !&#x3D; &#39;auth&#39; \</span><br><span class="line">            and request.endpoint !&#x3D; &#39;static&#39;:</span><br><span class="line">        return redirect(url_for(&#39;auth.unconfirmed&#39;))</span><br><span class="line">满足3个条件会拦截：</span><br><span class="line">（1）用户已登录（current_user.is_authenticated为True）</span><br><span class="line">（2）还未认证</span><br><span class="line">（3）请求的URL不在身份验证蓝本中，而且也不是对静态文件的请求。</span><br><span class="line">满足则会重定向到auth.unconfirmed路由中。</span><br><span class="line"></span><br><span class="line">@auth.route(&#39;&#x2F;unconfirmed&#39;)</span><br><span class="line">def unconfirmed():</span><br><span class="line">    if current_user.is_anonymous or current_user.confirmed:</span><br><span class="line">        return redirect(url_for(&#39;main.index&#39;))</span><br><span class="line">    return render_template(&#39;auth&#x2F;unconfirmed.html&#39;)</span><br></pre></td></tr></table></figure>
+<p>重新发送账户确认邮件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;confirm&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def resend_confirmation():</span><br><span class="line">    token &#x3D; current_user.generate_confirmation_token()</span><br><span class="line">    send_email(current_user.email, &#39;Confirm Your Account&#39;,</span><br><span class="line">               &#39;auth&#x2F;email&#x2F;confirm&#39;, user&#x3D;current_user, token&#x3D;token)</span><br><span class="line">    flash(&#39;A new confirmation email has been sent to you by email.&#39;)</span><br><span class="line">    return redirect(url_for(&#39;main.index&#39;))</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/04/Flask-8/" data-id="ckibka3930007pejxfeh58sjh" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Flask-7" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/30/Flask-7/" class="article-date">
+  <time datetime="2020-11-30T13:52:04.000Z" itemprop="datePublished">2020-11-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/30/Flask-7/">Flask(7)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Flask的身份验证扩展"><a href="#Flask的身份验证扩展" class="headerlink" title="Flask的身份验证扩展"></a>Flask的身份验证扩展</h1><h2 id="使用Werkzeug计算密码散列值"><a href="#使用Werkzeug计算密码散列值" class="headerlink" title="使用Werkzeug计算密码散列值"></a>使用Werkzeug计算密码散列值</h2><p>只需要两个函数：<br><code>generate_password_hash(password)</code>和<code>check_password_hash(hash,password)</code><br><code>@property</code>:该装饰器可以让密码无法直接读取。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">password_hash &#x3D; db.Column(db.String(128))</span><br><span class="line"></span><br><span class="line">    @property</span><br><span class="line">    def password(self):</span><br><span class="line">        raise AttributeError(&#39;password is not a readable attribute&#39;)</span><br><span class="line"></span><br><span class="line">    @password.setter</span><br><span class="line">    def password(self, password):</span><br><span class="line">        self.password_hash &#x3D; generate_password_hash(password)</span><br><span class="line"></span><br><span class="line">    def verify_password(self, password):</span><br><span class="line">        return check_password_hash(self.password_hash, password)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="创建身份验证蓝本（auth）"><a href="#创建身份验证蓝本（auth）" class="headerlink" title="创建身份验证蓝本（auth）"></a>创建身份验证蓝本（auth）</h2><p><strong>记住蓝本一定要注册，否则无法使用！！</strong></p>
+<p>如果使用url_prefix参数，则蓝本中定义的路由都要加上指定前缀：<br><code>app.register_blueprint(auth_blueprint, url_prefix=&#39;/auth&#39;)</code>  </p>
+<h2 id="flask-login验证用户身份"><a href="#flask-login验证用户身份" class="headerlink" title="flask-login验证用户身份"></a>flask-login验证用户身份</h2><table>
+<thead>
+<tr>
+<th>属性/方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>is_authenticated</td>
+<td>如果用户提供的登录凭据有效，必须返回True，否则返回False</td>
+</tr>
+<tr>
+<td>is_active</td>
+<td>如果允许用户登录，则必须返回True，否则返回False，如果想禁用账户，可以返回False</td>
+</tr>
+<tr>
+<td>is_anonymous</td>
+<td>对普通用户必须始终返回False，如果是表示匿名用户的特殊用户对象，应该返回True</td>
+</tr>
+<tr>
+<td>get_id()</td>
+<td>必须返回用户的唯一标识符，使用Unicode编码字符串</td>
+</tr>
+</tbody></table>
+<h4 id="Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面"><a href="#Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面" class="headerlink" title="Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面"></a>Flask-Login中的LoginManager阻拦匿名用户访问，并重定向回登录页面</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">login_manager &#x3D; LoginManager()</span><br><span class="line">login_manager.login_view &#x3D; &#39;auth.login&#39; # login_view属性用于设置登录页面的端点。</span><br></pre></td></tr></table></figure>
+<p>Flask-Login要求应用指定一个函数，在扩展需要从数据库中获取指定标识符对应的用户时调用。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@login_manager.user_loader</span><br><span class="line">def load_user(user_id):</span><br><span class="line">    return User.query.get(int(user_id))</span><br><span class="line"></span><br><span class="line">需要获取已登录的用户信息时调用，这个函数的返回值必须是用户对象，否则返回None</span><br></pre></td></tr></table></figure>
+<p>保护路由：使用<code>@login_required</code>  </p>
+<h3 id="登入用户"><a href="#登入用户" class="headerlink" title="登入用户"></a>登入用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@auth.route(&#39;&#x2F;login&#39;, methods&#x3D;[&#39;GET&#39;, &#39;POST&#39;])</span><br><span class="line">def login():</span><br><span class="line">    form &#x3D; LoginForm()</span><br><span class="line">    if form.validate_on_submit():</span><br><span class="line">        user &#x3D; User.query.filter_by(email&#x3D;form.email.data.lower()).first()</span><br><span class="line">        if user is not None and user.verify_password(form.password.data):</span><br><span class="line">            login_user(user, form.remember_me.data) # 调用Flask-Login里的login_user()方法，参数为需要登录的用户和可选的“记住我”，如果不选，则关闭浏览器后，用户会话就失效。</span><br><span class="line">            next &#x3D; request.args.get(&#39;next&#39;)</span><br><span class="line">            if next is None or not next.startswith(&#39;&#x2F;&#39;): # 防止其他网站的恶意重定向</span><br><span class="line">                next &#x3D; url_for(&#39;main.index&#39;)</span><br><span class="line">            return redirect(next) # 返回原来访问的URL，保存在next中</span><br><span class="line">        flash(&#39;Invalid email or password.&#39;)</span><br><span class="line">    return render_template(&#39;auth&#x2F;login.html&#39;, form&#x3D;form)</span><br></pre></td></tr></table></figure>
+
+<h3 id="登出用户"><a href="#登出用户" class="headerlink" title="登出用户"></a>登出用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">一定要记得先注册路由，再使用路由保护，否则会发生错误</span><br><span class="line">@auth.route(&#39;&#x2F;logout&#39;)</span><br><span class="line">@login_required</span><br><span class="line">def logout():</span><br><span class="line">    logout_user() # 删除并重设用户会话</span><br><span class="line">    flash(&#39;You have been logged out.&#39;)</span><br><span class="line">    return redirect(url_for(&#39;main.index&#39;))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/30/Flask-7/" data-id="ckibka3910006pejx3684fuua" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-考前笔记" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/" class="article-date">
+  <time datetime="2020-11-28T14:22:55.000Z" itemprop="datePublished">2020-11-28</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/">考前笔记</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>//    取整除 - 返回商的整数部分（向下取整）  </p>
+<p>python3缩进控制一个tab等于4个空格<br>python语言是解释执行的，和CPU之间多了一层解释器<br>python文件处理的各种模式：<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/ekuj/p/9570594.html">https://www.cnblogs.com/ekuj/p/9570594.html</a><br>short 不是python的数据类型<br>编程题：<br>判断[1-M]合数（除了1和自身还能被其他数整除）的个数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">list1 &#x3D; []</span><br><span class="line"></span><br><span class="line">a &#x3D; int(input(&quot;请输入m的值：&quot;))</span><br><span class="line"></span><br><span class="line">for i in range(4,a+1):</span><br><span class="line">    for j in range(2,i):</span><br><span class="line">        if i % j &#x3D;&#x3D; 0:</span><br><span class="line">            list1.append(i)</span><br><span class="line">            break</span><br><span class="line"></span><br><span class="line">print(&quot;1到%s中合数的个数为:%s个。&quot; % (a, len(list1)))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">判断质数（只能被1和本身整除）使用filter（）</span><br><span class="line">def zhishu2(num):</span><br><span class="line">    for i in range(2, num):</span><br><span class="line">        if num % i &#x3D;&#x3D; 0:</span><br><span class="line">            return False</span><br><span class="line">    return True</span><br><span class="line">new_list &#x3D; list(filter(zhishu2,range(2,21)))</span><br><span class="line">print(new_list)</span><br></pre></td></tr></table></figure>
+
+<p>从一个整数区间，顺序输出元素数位上各个数字平方和大于元素本身的数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">m, n &#x3D; map(int, input().split())</span><br><span class="line"></span><br><span class="line">def test():</span><br><span class="line">    for i in range(m,n+1):</span><br><span class="line">        if i &lt; sum([int(x)**2 for x in str(i)]):</span><br><span class="line">            print(i)</span><br></pre></td></tr></table></figure>
+<p>找到符合条件的字符串片段</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">a &#x3D; [&#39;Jan&#39;, &#39;Feb&#39;, &#39;Mar&#39;, &#39;Apr&#39;, &#39;May&#39;, &#39;Jun&#39;, &#39;Jul&#39;, &#39;Aug&#39;, &#39;Sep&#39;, &#39;Oct&#39;, &#39;Nov&#39;, &#39;Dec&#39;]</span><br><span class="line"></span><br><span class="line">s &#x3D; input()</span><br><span class="line"></span><br><span class="line">l &#x3D; len(s)</span><br><span class="line"></span><br><span class="line">box &#x3D; []</span><br><span class="line"></span><br><span class="line">if l &gt;&#x3D; 7:</span><br><span class="line"></span><br><span class="line">    for i in range(4, l):</span><br><span class="line"></span><br><span class="line">        if s[i - 1:i + 2] in a: # 区间左闭右开</span><br><span class="line">            box.append(i)</span><br><span class="line"></span><br><span class="line">    if box &#x3D;&#x3D; []:</span><br><span class="line"></span><br><span class="line">        print(&#39;2000Jan&#39;)</span><br><span class="line"></span><br><span class="line">    else:</span><br><span class="line"></span><br><span class="line">        for j in box:</span><br><span class="line">            if (s[j - 5:j - 1]).isdigit() &#x3D;&#x3D; True:</span><br><span class="line"></span><br><span class="line">                print(s[j - 5:j + 2])</span><br><span class="line"></span><br><span class="line">            else:</span><br><span class="line"></span><br><span class="line">                print(&#39;2000Jan&#39;)</span><br><span class="line"></span><br><span class="line">else:</span><br><span class="line"></span><br><span class="line">    print(&#39;2000Jan&#39;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>找到第三大的矩形序号，及面积</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">import random</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def test():</span><br><span class="line">    list1 &#x3D; []</span><br><span class="line">    list2 &#x3D; []</span><br><span class="line">    n &#x3D; int(input())</span><br><span class="line">    while n:</span><br><span class="line">        x1 &#x3D; random.randint(0, 9)</span><br><span class="line">        x2 &#x3D; random.randint(0, 9)</span><br><span class="line">        y1 &#x3D; random.randint(0, 9)</span><br><span class="line">        y2 &#x3D; random.randint(0, 9)</span><br><span class="line">        if x2 &gt; x1 and y2 &gt; y1:</span><br><span class="line">            n &#x3D; n - 1</span><br><span class="line">            print(x1, y1, x2, y2)</span><br><span class="line">            s &#x3D; (x2 - x1) * (y2 - y1)</span><br><span class="line">            list1.append(s)</span><br><span class="line">            list2.append(s)</span><br><span class="line">    list1.sort(reverse&#x3D;True)</span><br><span class="line">    print(list1)</span><br><span class="line">    print(list2.index(list1[2])+1,list1[2])</span><br><span class="line"></span><br><span class="line">test()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">a1, a2, a3 &#x3D; map(int, input().split())</span><br><span class="line">b1, b2, b3 &#x3D; map(int, input().split())</span><br><span class="line">a, b, c &#x3D; map(int, input().split())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def test():</span><br><span class="line">    dict1&#x3D;&#123;&#125;</span><br><span class="line">    for x in range(max(a, b, c) + 1):</span><br><span class="line">        for y in range(x):</span><br><span class="line">            y &#x3D; y + 1</span><br><span class="line">            if a1 * x + b1 * y &lt;&#x3D; a and a2 * x + b2 * y &lt;&#x3D; b and a3 * x + b3 * y &lt;&#x3D; c and y &gt; 0 and x &gt; 0:</span><br><span class="line">                tuple&#x3D;(x,y)</span><br><span class="line">                sum &#x3D; 100*x+150*y</span><br><span class="line">                dict1[tuple]&#x3D;sum</span><br><span class="line">                print(sum)</span><br><span class="line">    for k in dict1:</span><br><span class="line">        global s</span><br><span class="line">        s &#x3D; max(dict1.values())</span><br><span class="line">        if dict1[k] &#x3D;&#x3D; s:</span><br><span class="line">            print(k[0],k[1],s)</span><br><span class="line">列表不能作为字典的key，元组可以。</span><br><span class="line">字典里的key有一个原则,必须可哈希(有个内置函数hash()可以检测是否支持可哈希)</span><br><span class="line">&#96;&#96;&#96;  </span><br><span class="line"></span><br><span class="line">fibs为列表，fibs[-1] 表示倒数第一个值，fibs[1,5]表示索引1-5的值  </span><br><span class="line">将一个列表的数据复制到另一个列表中  </span><br></pre></td></tr></table></figure>
+<p>a = [1, 2, 3]<br>b = a[:]<br>print (b)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">python3输出语句，加上end&#x3D;“”可以不换行  </span><br><span class="line"></span><br><span class="line">&#96;print(&quot;&#123;&#125;*&#123;&#125;&#x3D;&#123;&#125;&quot;.format(i,j,i*j),end&#x3D;&quot; &quot;)&#96;  </span><br><span class="line"></span><br><span class="line">格式化输出时间：  </span><br><span class="line">&#96;print (time.strftime(&#39;%Y-%m-%d %H:%M:%S&#39;,time.localtime(time.time())))&#96;  </span><br><span class="line"></span><br><span class="line">输出指定日期格式</span><br></pre></td></tr></table></figure>
+<h1 id="输出今日日期，格式为-dd-mm-yyyy。更多选项可以查看-strftime-方法"><a href="#输出今日日期，格式为-dd-mm-yyyy。更多选项可以查看-strftime-方法" class="headerlink" title="输出今日日期，格式为 dd/mm/yyyy。更多选项可以查看 strftime() 方法"></a>输出今日日期，格式为 dd/mm/yyyy。更多选项可以查看 strftime() 方法</h1><pre><code>print(datetime.date.today().strftime(&#39;%d/%m/%Y&#39;))
+
+# 创建日期对象
+miyazakiBirthDate = datetime.date(1941, 1, 5)
+
+print(miyazakiBirthDate.strftime(&#39;%d/%m/%Y&#39;))
+
+# 日期算术运算
+miyazakiBirthNextDay = miyazakiBirthDate + datetime.timedelta(days=1)
+
+print(miyazakiBirthNextDay.strftime(&#39;%d/%m/%Y&#39;))
+
+# 日期替换
+miyazakiFirstBirthday = miyazakiBirthDate.replace(year=miyazakiBirthDate.year + 1)
+
+print(miyazakiFirstBirthday.strftime(&#39;%d/%m/%Y&#39;))</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">逆循环：&#96;for day in range(9,0,-1):&#96;  </span><br><span class="line"></span><br><span class="line">按逗号分隔列表：</span><br></pre></td></tr></table></figure>
+<p>L = [1, 2, 3, 4, 5]<br>s1 = ‘,’.join(str(n) for n in L)<br>print(s1)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#96;&#96;&#96;</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">字符串日期转换为易读的日期格式。</span><br><span class="line">&#39;&#39;&#39;</span><br><span class="line">from dateutil import parser</span><br><span class="line">dt &#x3D; parser.parse(&quot;Aug 28 2015 12:00AM&quot;)</span><br><span class="line">print(dt)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/11/28/%E8%80%83%E5%89%8D%E7%AC%94%E8%AE%B0/" data-id="ckibka39b000bpejxe0k6b2d0" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Flask-6" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2020/11/26/Flask-6/" class="article-date">
@@ -648,112 +857,11 @@
 
 
   
-    <article id="post-Tornado1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/22/Tornado1/" class="article-date">
-  <time datetime="2020-11-22T14:12:36.000Z" itemprop="datePublished">2020-11-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/22/Tornado1/">Tornado1</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="render"><a href="#render" class="headerlink" title="render()"></a>render()</h3><p>传参格式：<br>    render(“xxx.html”,url=url)<br>注意！！要写成url=url，不能直接传url，否则会判断为多一个参数，而不是往模板传参</p>
-<h3 id="xsrf-form-html"><a href="#xsrf-form-html" class="headerlink" title="xsrf_form_html()"></a>xsrf_form_html()</h3><p>当<code>&quot;xsrf_cookies&quot;: True</code>时，在模板中使用<code>&#123;% module xsrf_form_html() %&#125;</code><br>即可<br>注意：输入域名的时候不能使用localhost！！！！否则会被判断为非同源</p>
-<h3 id="escape"><a href="#escape" class="headerlink" title="escape()"></a>escape()</h3><p>转义函数</p>
-<h2 id="tornado-websocket"><a href="#tornado-websocket" class="headerlink" title="tornado.websocket"></a>tornado.websocket</h2><h3 id="WebSocketHandler"><a href="#WebSocketHandler" class="headerlink" title="WebSocketHandler"></a>WebSocketHandler</h3><p>例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class EchoWebSocket(tornado.websocket.WebSocketHandler):</span><br><span class="line">    def open(self):</span><br><span class="line">        print(&quot;WebSocket opened&quot;)</span><br><span class="line"></span><br><span class="line">    def on_message(self, message):</span><br><span class="line">        self.write_message(u&quot;You said: &quot; + message)</span><br><span class="line"></span><br><span class="line">    def on_close(self):</span><br><span class="line">        print(&quot;WebSocket closed&quot;)</span><br></pre></td></tr></table></figure>
-<p>on_message是用来处理发进来的信息，而write_message则是发送给客户端信息，open方法被调用说明连接<br>成功，on_close相反，该类需要实现open方法，而不需要实现get，post等方法</p>
-<p>js标准写法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var ws &#x3D; new WebSocket(&quot;ws:&#x2F;&#x2F;localhost:8888&#x2F;websocket&quot;);</span><br><span class="line">ws.onopen &#x3D; function() &#123;</span><br><span class="line">   ws.send(&quot;Hello, world&quot;);</span><br><span class="line">&#125;;</span><br><span class="line">ws.onmessage &#x3D; function (evt) &#123;</span><br><span class="line">   alert(evt.data);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>以上两个例子输出为：You said： Hello，world</p>
-<h2 id="tornado-httpclient"><a href="#tornado-httpclient" class="headerlink" title="tornado.httpclient"></a>tornado.httpclient</h2><h3 id="AsyncHTTPClient"><a href="#AsyncHTTPClient" class="headerlink" title="AsyncHTTPClient"></a>AsyncHTTPClient</h3><p>一个非阻塞的httpclient<br>例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">async def f():</span><br><span class="line">    http_client &#x3D; AsyncHTTPClient()</span><br><span class="line">    try:</span><br><span class="line">        response &#x3D; await http_client.fetch(&quot;http:&#x2F;&#x2F;www.google.com&quot;)</span><br><span class="line">    except Exception as e:</span><br><span class="line">        print(&quot;Error: %s&quot; % e)</span><br><span class="line">    else:</span><br><span class="line">        print(response.body)</span><br></pre></td></tr></table></figure>
-<h4 id="fetch"><a href="#fetch" class="headerlink" title="fetch"></a>fetch</h4><p>执行这个请求，异步返回一个HTTPResponse对象，参数可以是一个HTTP请求或者是一个url，<br>其实返回的这个响应是一个Future对象</p>
-<h4 id="tornado-httpclient-HTTPRequest-amp-tornado-httpclient-HTTPResponse"><a href="#tornado-httpclient-HTTPRequest-amp-tornado-httpclient-HTTPResponse" class="headerlink" title="tornado.httpclient.HTTPRequest &amp; tornado.httpclient.HTTPResponse"></a>tornado.httpclient.HTTPRequest &amp; tornado.httpclient.HTTPResponse</h4><p>具体看文档。。</p>
-<h2 id="tornado-tcpserver"><a href="#tornado-tcpserver" class="headerlink" title="tornado.tcpserver"></a>tornado.tcpserver</h2><h3 id="TCPServer"><a href="#TCPServer" class="headerlink" title="TCPServer"></a>TCPServer</h3><p>用这个TCPServer 需要先重写 handle_stream方法，该方法主要用来处理应用层逻辑的<br>例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">from tornado.tcpserver import TCPServer</span><br><span class="line">from tornado.iostream import StreamClosedError</span><br><span class="line">from tornado import gen</span><br><span class="line"></span><br><span class="line">class EchoServer(TCPServer):</span><br><span class="line">    async def handle_stream(self, stream, address):</span><br><span class="line">        while True:</span><br><span class="line">            try:</span><br><span class="line">                data &#x3D; await stream.read_until(b&quot;\n&quot;)</span><br><span class="line">                await stream.write(data)</span><br><span class="line">            except StreamClosedError:</span><br><span class="line">                break</span><br></pre></td></tr></table></figure>
-<p>明天看（<a target="_blank" rel="noopener" href="https://www.cnblogs.com/MnCu8261/p/6882066.html%EF%BC%89">https://www.cnblogs.com/MnCu8261/p/6882066.html）</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/22/Tornado1/" data-id="ckibka3950008pejx9ul4hlj5" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2020/11/22/hello-world/" class="article-date">
-  <time datetime="2020-11-22T13:43:41.830Z" itemprop="datePublished">2020-11-22</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/11/22/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/11/22/hello-world/" data-id="ckibka398000apejx8nlc969t" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &amp;raquo;</a>
   </nav>
 
 </section>
@@ -785,23 +893,23 @@
       <ul>
         
           <li>
+            <a href="/2020/12/15/%E5%BC%80%E7%AF%87/">开篇</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/15/%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%E6%9C%BA%E5%88%B6%EF%BC%881%EF%BC%89/">事务与锁机制（1）</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/15/mysql%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">mysql体系结构与存储引擎</a>
+          </li>
+        
+          <li>
             <a href="/2020/12/10/Flask-14/">Flask(14)</a>
           </li>
         
           <li>
             <a href="/2020/12/10/Flask-13/">Flask(13)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/06/%E8%A7%A3%E5%86%B3migration%E7%89%88%E6%9C%AC%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/">解决migration版本冲突问题</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/06/Flask-12/">Flask(12)</a>
-          </li>
-        
-          <li>
-            <a href="/2020/12/06/Flask-11/">Flask(11)</a>
           </li>
         
       </ul>

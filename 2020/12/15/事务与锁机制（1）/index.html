@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>事务与锁机制（1） | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="事务及其特性（ACID） 一致性：事务开始之前和事务结束之后，数据库的完整性限制未被破坏。    原子性：事务的所有操作，要么全部完成，要么全部不完成，不会结束在某个中间环节。    持久性：事务完成之后，事务所做的修改进行持久化保存，不会丢失。    隔离性：当多个事务并发访问数据库中的同一数据时，所表现出来的相互关系。     并发事务控制单版本控制-锁&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;n">
+<meta property="og:type" content="article">
+<meta property="og:title" content="事务与锁机制（1）">
+<meta property="og:url" content="http://example.com/2020/12/15/%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%E6%9C%BA%E5%88%B6%EF%BC%881%EF%BC%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="事务及其特性（ACID） 一致性：事务开始之前和事务结束之后，数据库的完整性限制未被破坏。    原子性：事务的所有操作，要么全部完成，要么全部不完成，不会结束在某个中间环节。    持久性：事务完成之后，事务所做的修改进行持久化保存，不会丢失。    隔离性：当多个事务并发访问数据库中的同一数据时，所表现出来的相互关系。     并发事务控制单版本控制-锁&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;n">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-12-15T12:41:47.000Z">
+<meta property="article:modified_time" content="2020-12-15T12:42:12.011Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-事务与锁机制（1）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/12/15/%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%E6%9C%BA%E5%88%B6%EF%BC%881%EF%BC%89/" class="article-date">
+  <time datetime="2020-12-15T12:41:47.000Z" itemprop="datePublished">2020-12-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      事务与锁机制（1）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="事务及其特性（ACID）"><a href="#事务及其特性（ACID）" class="headerlink" title="事务及其特性（ACID）"></a>事务及其特性（ACID）</h1><ul>
+<li><p>一致性：事务开始之前和事务结束之后，数据库的完整性限制未被破坏。  </p>
+</li>
+<li><p>原子性：事务的所有操作，要么全部完成，要么全部不完成，不会结束在某个中间环节。  </p>
+</li>
+<li><p>持久性：事务完成之后，事务所做的修改进行持久化保存，不会丢失。  </p>
+</li>
+<li><p>隔离性：当多个事务并发访问数据库中的同一数据时，所表现出来的相互关系。  </p>
+</li>
+</ul>
+<h1 id="并发事务控制"><a href="#并发事务控制" class="headerlink" title="并发事务控制"></a>并发事务控制</h1><h2 id="单版本控制-锁"><a href="#单版本控制-锁" class="headerlink" title="单版本控制-锁"></a>单版本控制-锁</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;先来看锁，锁用独占的方式来保证在只有一个版本的情况下事务之间相互隔离，所以锁可以理解为单版本控制。  </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;在 MySQL 事务中，锁的实现与隔离级别有关系，在 RR（Repeatable Read）隔离级别下，MySQL 为了解决幻读的问题，以牺牲并行度为代价，通过 Gap 锁来防止数据的写入，而这种锁，因为其并行度不够，冲突很多，经常会引起死锁。现在流行的 Row 模式可以避免很多冲突甚至死锁问题，所以推荐默认使用 Row + RC（Read Committed）模式的隔离级别，可以很大程度上提高数据库的读写并行度。</p>
+<h2 id="多版本控制-MVCC"><a href="#多版本控制-MVCC" class="headerlink" title="多版本控制-MVCC"></a>多版本控制-MVCC</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;多版本控制也叫作 MVCC，是指在数据库中，为了实现高并发的数据访问，对数据进行多版本处理，并通过事务的可见性来保证事务能看到自己应该看到的数据版本。  </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;那个多版本是如何生成的呢？每一次对数据库的修改，都会在 Undo 日志中记录当前修改记录的事务号及修改前数据状态的存储地址（即 ROLL_PTR），以便在必要的时候可以回滚到老的数据版本。例如，一个读事务查询到当前记录，而最新的事务还未提交，根据原子性，读事务看不到最新数据，但可以去回滚段中找到老版本的数据，这样就生成了多个版本。  </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;多版本控制很巧妙地将稀缺资源的独占互斥转换为并发，大大提高了数据库的吞吐量及读写性能。</p>
+<h2 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;1.读未提交（RU，Read Uncommitted）。它能读到一个事务的中间过程，违背了 ACID 特性，存在脏读的问题，所以基本不会用到，可以忽略。  </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;2.读提交（RC，Read Committed）。它表示如果其他事务已经提交，那么我们就可以看到，这也是一种最普遍适用的级别。但由于一些历史原因，可能 RC 在生产环境中用的并不多。  </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;3.可重复读（RR，Repeatable Read），是目前被使用得最多的一种级别。其特点是有 Gap 锁、目前还是默认的级别、在这种级别下会经常发生死锁、低并发等问题。  </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;4.可串行化，这种实现方式，其实已经并不是多版本了，又回到了单版本的状态，因为它所有的实现都是通过锁来实现的。</p>
+<h2 id="MVCC-实现原理"><a href="#MVCC-实现原理" class="headerlink" title="MVCC 实现原理"></a>MVCC 实现原理</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;MVCC 最大的好处是读不加锁，读写不冲突。在读多写少的 OLTP（On-Line Transaction Processing）应用中，读写不冲突是非常重要的，极大的提高了系统的并发性能，这也是为什么现阶段几乎所有的 RDBMS（Relational Database Management System），都支持 MVCC 的原因。 </p>
+<h3 id="快照读和当前读"><a href="#快照读和当前读" class="headerlink" title="快照读和当前读"></a>快照读和当前读</h3><p>在 MVCC 并发控制中，读操作可以分为两类: 快照读（Snapshot Read）与当前读 （Current Read）。</p>
+<ul>
+<li>快照读：读取的是记录的可见版本（有可能是历史版本），不用加锁。（简单的 select 操作，属于快照读，不需要加锁。 ）  </li>
+<li>当前读：读取的是记录的最新版本，并且当前读返回的记录，都会加锁，保证其他事务不会再并发修改这条记录。 （特殊的读操作，插入/更新/删除操作，属于当前读，需要加锁。 ）  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 加上排他锁</span><br><span class="line">select * from t for update;</span><br><span class="line"># 加上共享锁</span><br><span class="line">select * from t for lock in share mode;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="Read-View"><a href="#Read-View" class="headerlink" title="Read View"></a>Read View</h4><p>RR级别下，每个事务开启时只会在第一次查询生成Read View，只有当事务提交后，才会更新</p>
+<h3 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;一个事务按相同的查询条件重新读取以前检索过的数据，却发现其他事务插入了满足其查询条件的新数据，这种现象就称为“幻读”（Phantom Reads）。<br>&nbsp;&nbsp;&nbsp;&nbsp;MVCC 机制解决的是快照读的幻读问题，并不能解决当前读的幻读问题。当前读的幻读问题是通过间隙锁解决的</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/12/15/%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%E6%9C%BA%E5%88%B6%EF%BC%881%EF%BC%89/" data-id="ckipz7rg40001b3jx64n246ww" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/12/15/%E5%BC%80%E7%AF%87/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          开篇
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/12/15/mysql%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">mysql体系结构与存储引擎</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/12/15/%E5%BC%80%E7%AF%87/">开篇</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/15/%E4%BA%8B%E5%8A%A1%E4%B8%8E%E9%94%81%E6%9C%BA%E5%88%B6%EF%BC%881%EF%BC%89/">事务与锁机制（1）</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/15/mysql%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">mysql体系结构与存储引擎</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/10/Flask-14/">Flask(14)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/12/10/Flask-13/">Flask(13)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
